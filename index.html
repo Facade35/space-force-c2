@@ -352,6 +352,9 @@ var SOURCES = {
   md6fs:{t:"Combat Forces Command fact sheet, “Mission Delta 6 – Cyberspace Warfare”",u:"https://www.ussf-cfc.spaceforce.mil/About-Us/Fact-Sheets/Display/Article/3878167/mission-delta-6-cyberspace-warfare"},
   md9fs:{t:"Combat Forces Command fact sheet, “Mission Delta 9 – Orbital Warfare”",u:"https://www.ussf-cfc.spaceforce.mil/About-Us/Fact-Sheets/Display/Article/3878188/mission-delta-9-orbital-warfare"},
   cfcfs:{t:"Combat Forces Command, Fact Sheets index (lists Mission Deltas 2, 4, 6, 8 and 9 and Space Base Deltas 1 and 2)",u:"https://www.ussf-cfc.spaceforce.mil/About-Us/Fact-Sheets/"},
+  sd6cys:{t:"Peterson and Schriever SFB, “Space Delta 6 activates Cyber Squadrons” (64th, 68th and 69th, supporting Deltas 4, 8 and 9)",u:"https://www.petersonschriever.spaceforce.mil/Newsroom/News/Display/Article/3315691/space-delta-6-activates-cyber-squadrons/"},
+  cys69:{t:"Peterson and Schriever SFB fact sheet, “69th Cyberspace Squadron,” Feb 2024",u:"https://www.petersonschriever.spaceforce.mil/About-Us/Fact-Sheets/Display/Article/3672843/69th-cyberspace-squadron"},
+  md4fs:{t:"Space Operations Command fact sheet, “Mission Delta 4 – Missile Warning” (names the 62nd Cyber Squadron)",u:"https://www.spoc.spaceforce.mil/About-Us/Fact-Sheets/Display/Article/3878161"},
   md8:{t:"DVIDS, “Mission Delta 8 marks change in leadership,” 30 Jun 2026",u:"https://www.dvidshub.net/image/9799740/mission-delta-8-marks-change-leadership"},
   md8fs:{t:"U.S. Space Force fact sheet, “Space Delta 8,” Apr 2023 (squadron list)",u:"https://www.spaceforce.mil/About-Us/Fact-Sheets/Fact-Sheet-Display/Article/3743020/space-delta-8/"},
   satcomoc:{t:"Air & Space Forces Magazine, “Combat Forces Command Creates New Ops Centers for SATCOM and EW,” 17 Dec 2025",u:"https://www.airandspaceforces.com/space-force-combat-forces-command-satcom-ew-ops-centers/"},
@@ -390,7 +393,7 @@ var LENS_TEXT = {
   cdr:"<b>CDRUSSPACECOM holds COCOM</b> over every force assigned and presented to U.S. Space Command. COCOM cannot be delegated. The commander delegates <b>OPCON</b> of each service's forces to that service's component commander, and <b>TACON of all units assigned to USSPACECOM to the CJFSCC</b>.",
   s4s:"<b>As COMSPACEFOR</b>, the S4S commander holds <b>OPCON of all Space Force forces</b> assigned or presented to USSPACECOM. <b>As CJFSCC</b>, the same commander holds <b>TACON of all units assigned to USSPACECOM</b>, including space forces the Army, Navy, Marine Corps and Air Force make available, and coalition space forces.",
   army:"<b>USASMDC holds OPCON</b> of the Army space forces it makes available to USSPACECOM. <b>TACON</b> of those forces for space operations belongs to the <b>CJFSCC</b>. An Army op-ed (Dec 2025) adds that once forces such as 1st Space Brigade are assigned to combatant commanders, they draw counterspace authorities from both the regional combatant commands and USSPACECOM.",
-  marines:"<b>MARFORSPACE does not hold OPCON of any space units</b> in public sources and does not direct units. It represents Marine Corps capabilities, advises USSPACECOM, and coordinates space support for the Fleet Marine Force. Directing space operations is the <b>CJFSCC</b>'s job.",
+  marines:"<b>MARFORSPACE holds OPCON</b> of Marine Corps forces made available to USSPACECOM, but it does not direct them. <b>TACON</b> of those forces belongs to the <b>CJFSCC</b>, which directs space operations. Public sources do not list which Marine units these are. MARFORSPACE also represents Marine Corps capabilities, advises USSPACECOM, and coordinates space support for the Fleet Marine Force.",
   navy:"<b>NAVSPACECOM holds OPCON</b> of any Navy forces it makes available to USSPACECOM. Public sources do not list specific units. <b>TACON</b> of any such forces for space operations belongs to the <b>CJFSCC</b>.",
   af:"<b>AFSPACE holds OPCON</b> of the Air Force forces it provides to USSPACECOM: Detachment 3, Human Space Flight Support. Under the USSPACECOM rule, <b>TACON</b> of assigned units belongs to the <b>CJFSCC</b>.",
   jfcc:"<b>JFCC IMD holds no OPCON or TACON of forces</b> in public sources. It plans and synchronizes global missile defense for the combatant commands and works through support relationships."
@@ -434,13 +437,13 @@ var N = {
   src:["spacecom","smdc","armyop","crs"]},
 
  marines:{abbr:"MARFORSPACE",title:"U.S. Marine Corps Forces Space Command",rank:"O-8",kind:"comp",role:"comp",holder:"marines",
-  sum:"Marine Corps service component. Represents, advises and coordinates; does not direct space units.",
+  sum:"Marine Corps service component. OPCON of Marine forces made available; the CJFSCC directs them through TACON.",
   location:"Peterson SFB, CO",
   mission:"Serves as the Marine Corps component to USSPACECOM. Represents Marine Corps capabilities and interests, advises USSPACECOM on integration with Marine Corps operations, and provides space operational support to the Fleet Marine Force (FMF). Led by a Major General.",
   resp:["Represent Marine Corps capabilities and requirements at USSPACECOM","Advise USSPACECOM on integrating with and supporting Marine operations","Coordinate space support to FMF operations"],
-  auth:["Holds no OPCON of space units in public sources","Does not direct units. Directing space operations is the CJFSCC's job.","ADCON of Marine personnel through the Department of the Navy (Marine Corps)"],
+  auth:["OPCON of Marine Corps forces made available to USSPACECOM, as delegated by CDRUSSPACECOM","Does not direct those units: TACON for space operations is held by the CJFSCC","ADCON of Marine personnel through the Department of the Navy (Marine Corps)"],
   rep:{opcon:"Commander, USSPACECOM",adcon:"Department of the Navy (Marine Corps)"},
-  sup:["Component staff and liaison officers","Coordinates with Marine Corps Information Command and FMF space elements (not under its command)"],
+  sup:["Marine Corps forces made available to USSPACECOM (OPCON)","Component staff and liaison officers","Coordinates with Marine Corps Information Command and FMF space elements"],
   src:["marsite","spacecom","wmar"]},
 
  navy:{abbr:"NAVSPACECOM",title:"U.S. Navy Space Command",rank:"O-9",kind:"comp",role:"comp",holder:"navy",
@@ -540,7 +543,7 @@ var N = {
  cdel6:{abbr:"MD6 forces",title:"Mission Delta 6 combat formations",rank:"O-6",kind:"cdel",role:"force",op:"s4s",ta:"cjfscc",parent:"del6",
   sum:"Cyberspace warfare forces for the joint force.",mission:"Combat formations presented from Mission Delta 6. The Satellite Control Network moved from Delta 6 to Mission Delta 31 in Feb 2025.",
   resp:["Cyberspace warfare, including defense of space mission systems"],rep:{opcon:"COMSPACEFOR (S4S)",adcon:"Mission Delta 6 / CFC, with specified ADCON to S4S as directed"},
-  sup:["Combat crews from Mission Delta 6 cyberspace squadrons"],sq:["sq65cys","sq645cys"],src:["sfdd1","spfmd11","md6fs"]},
+  sup:["Combat crews from Mission Delta 6 cyberspace squadrons"],sq:["sq65cys","sq645cys","sq62cys","sq64cys","sq68cys","sq69cys"],src:["sfdd1","spfmd11","md6fs","sd6cys"]},
  cdel8:{abbr:"MD8 forces",title:"Mission Delta 8 combat formations",rank:"O-6",kind:"cdel",role:"force",op:"s4s",ta:"cjfscc",parent:"md8",
   sum:"Military satellite communications (SATCOM).",mission:"Combat formations presented from Mission Delta 8, the SATCOM mission delta. GPS belongs to Mission Delta 31.",
   resp:["Narrowband, wideband, and protected SATCOM operations"],rep:{opcon:"COMSPACEFOR (S4S)",adcon:"Mission Delta 8 / CFC, with specified ADCON to S4S as directed"},
@@ -568,7 +571,7 @@ var N = {
   mission:"Provides space combat power to Army and joint forces: Army Space Support Teams, space control companies, and forward-based missile defense radar batteries.",
   resp:["Army Space Support Teams (ARSSTs) for deployed commanders","Space control operations"],
   rep:{opcon:"USASMDC, as delegated by CDRUSSPACECOM",adcon:"USASMDC (Department of the Army)"},
-  sup:["1st Space Battalion (active)","2nd Space Battalion (Army Reserve; under these authorities only when mobilized)","117th Space Battalion (Colorado Army National Guard; under these authorities only when federalized)","Forward-based AN/TPY-2 radar batteries"],
+  sup:["1st Space Battalion (active)","2nd Space Battalion (Army Reserve; when mobilized)","117th Space Battalion (Colorado Army National Guard; when federalized)","Forward-based AN/TPY-2 radar batteries"],
   sq:["bn1sp","bn2sp","bn117sp","tpy2"],src:["wsmdc","smdc","armyop"]},
  navyf:{abbr:"NAVY FORCES",title:"Navy forces made available to USSPACECOM",rank:null,kind:"unit",role:"force",op:"navy",ta:"cjfscc",
   sum:"Not specified in public sources.",
@@ -578,8 +581,11 @@ var N = {
   sum:"Astronaut rescue and recovery for crewed flights.",location:"Patrick SFB, FL",
   mission:"Oversees rescue force training and alert posture, coordinates astronaut rescue and recovery, and arranges contingency landing, payload security, medical, and airlift or sealift support. Realigned from Space Launch Delta 45 to First Air Force on 15 Jul 2021.",
   resp:["Rescue force alert posture (Patrick SFB, Joint Base Charleston, Joint Base Pearl Harbor-Hickam)","Contingency landing site support"],
-  rep:{opcon:"AFSPACE (First Air Force)",adcon:"First Air Force"},sup:["Rescue forces when on alert"],src:["afspace"],
-  verify:["Public sources do not describe how the CJFSCC's TACON applies to Detachment 3's astronaut rescue mission. Shown here under the USSPACECOM rule that the CJFSCC holds TACON of all assigned units."]},
+  rep:{opcon:"AFSPACE (First Air Force)",adcon:"First Air Force"},sup:["Rescue forces when on alert"],src:["afspace"]},
+ marf:{abbr:"MARINE FORCES",title:"Marine Corps forces made available to USSPACECOM",rank:null,kind:"unit",role:"force",op:"marines",ta:"cjfscc",
+  sum:"Specific units not listed in public sources.",
+  mission:"Marine Corps units made available to USSPACECOM fall under MARFORSPACE OPCON. TACON is held by the CJFSCC, which directs their employment in space operations. MARFORSPACE does not direct them.",
+  resp:["Not specified publicly"],rep:{opcon:"MARFORSPACE",adcon:"Department of the Navy (Marine Corps)"},sup:["—"],src:["marsite","sfdd1"]},
  mcic:{abbr:"MCIC",title:"Marine Corps Information Command",rank:"O-8",kind:"unit",role:"force",co:"marines",
   sum:"Service-retained. Integrates cyber, space, influence, and intelligence effects for the Fleet Marine Force.",location:"Fort George G. Meade, MD",
   mission:"Activated Jan 2023 as the Marine Corps' integrator of information capabilities. Not assigned to USSPACECOM; shown because MARFORSPACE coordinates Marine space capabilities with it.",
@@ -640,7 +646,7 @@ var N = {
  del6:{abbr:"MD6",title:"Mission Delta 6",rank:"O-6",kind:"delta",role:"adm",adl:"CFC",sum:"Cyberspace warfare.",location:"Schriever SFB, CO",
   mission:"“Generate, present, sustain and improve Cyberspace Warfare forces for the Joint Force.” Formerly Space Delta 6; Combat Forces Command now lists it as Mission Delta 6 – Cyberspace Warfare. Its Satellite Control Network squadrons moved to Mission Delta 31 in Feb 2025.",
   resp:["Generate, present, sustain and improve cyberspace warfare forces"],auth:["ADCON over assigned squadrons"],
-  rep:{opcon:"Presented crews: COMSPACEFOR (S4S)",adcon:"Commander, CFC"},sup:["Two squadrons and two detachments"],sq:["sq65cys","sq645cys"],staff:["dcc","dsstaff"],src:["md6fs","md31fs","sops21"]},
+  rep:{opcon:"Presented crews: COMSPACEFOR (S4S)",adcon:"Commander, CFC"},sup:["65th and 645th Cyberspace Squadrons and two detachments (current fact sheet)","62nd, 64th, 68th and 69th Cyberspace Squadrons: activated under Delta 6 to defend other deltas' missions; current parent not published"],sq:["sq65cys","sq645cys","sq62cys","sq64cys","sq68cys","sq69cys"],staff:["dcc","dsstaff"],src:["md6fs","sd6cys","cys69","md4fs","md31fs","sops21"]},
  del7:{abbr:"DEL 7",title:"Space Delta 7",rank:"O-6",kind:"delta",role:"adm",adl:"CFC",sum:"Intelligence, surveillance, reconnaissance and targeting.",location:"Peterson SFB, CO",
   mission:"“Generate, present, sustain and improve combat ready intelligence and targeting forces to fight and win during competition, crisis, and conflict.” Still a Space Delta (not a Mission Delta) as of Aug 2026. The 71st ISRS was inactivated in summer 2025 after its detachments moved into the mission deltas.",
   resp:["Generate and present ISR and targeting forces to COMSPACEFOR","Embedded intelligence support to other deltas, as directed"],
@@ -678,15 +684,15 @@ function st(abbr,title,short,rank,sum,resp,opc,adc,sup,src){return {abbr:abbr,ti
 var S = {
  dcdr:st("DCDR","Deputy Commander, USSPACECOM","Deputy Commander","O-9","Second in command of U.S. Space Command.",["Acts for the commander when absent","Directs headquarters activities as delegated"],"CDRUSSPACECOM","Parent service",["As delegated"]),
  csel:st("CSEL","Command Senior Enlisted Leader, USSPACECOM","Command Senior Enlisted Leader","E-9","Senior enlisted advisor to the combatant commander.",["Advises the commander on enlisted joint force matters","Enlisted readiness, welfare, and development"],"CDRUSSPACECOM","Parent service",["Enlisted leaders across the command (advisory)"]),
- j0:st("J0","Chief of Staff and Support","Chief of Staff & Support",null,"Runs the headquarters staff; includes the Joint Integrated Space Teams.",["Synchronize headquarters staff work","Oversee the Joint Integrated Space Teams"],"CDRUSSPACECOM","Parent service",["Headquarters directorates"]),
- j1:st("J1","Human Capital","Human Capital",null,"Manpower and personnel.",["Joint manpower and personnel management"],"J0 / CDRUSSPACECOM","Parent service"),
- j2:st("J2","Intelligence","Intelligence",null,"Intelligence for the command.",["Intelligence support to planning and operations"],"J0 / CDRUSSPACECOM","Parent service"),
- j3:st("J3","Global Operations","Global Operations",null,"Current operations.",["Direct and monitor current operations"],"J0 / CDRUSSPACECOM","Parent service"),
- j4:st("J4","Logistics","Logistics",null,"Logistics.",["Logistics planning and support"],"J0 / CDRUSSPACECOM","Parent service"),
- j5:st("J5","Strategy, Plans and Policy","Strategy, Plans & Policy",null,"Plans and policy.",["Campaign and contingency planning","Strategy and policy"],"J0 / CDRUSSPACECOM","Parent service"),
- j6:st("J6","Digital Superiority","Digital Superiority",null,"Command, control, communications, and cyber.",["Communications and digital systems"],"J0 / CDRUSSPACECOM","Parent service"),
- j7:st("J7","Development and Training","Development & Training",null,"Joint training and exercises.",["Joint training, exercises, and force development"],"J0 / CDRUSSPACECOM","Parent service"),
- j8:st("J8","Capabilities and Resources","Capabilities & Resources",null,"Requirements and resources.",["Capability requirements and resourcing"],"J0 / CDRUSSPACECOM","Parent service"),
+ j0:st("J0","Chief of Staff and Support","Chief of Staff & Support","O-6","Runs the headquarters staff; includes the Joint Integrated Space Teams.",["Synchronize headquarters staff work","Oversee the Joint Integrated Space Teams"],"CDRUSSPACECOM","Parent service",["Headquarters directorates"]),
+ j1:st("J1","Human Capital","Human Capital","O-6","Manpower and personnel.",["Joint manpower and personnel management"],"J0 / CDRUSSPACECOM","Parent service"),
+ j2:st("J2","Intelligence","Intelligence","O-6","Intelligence for the command.",["Intelligence support to planning and operations"],"J0 / CDRUSSPACECOM","Parent service"),
+ j3:st("J3","Global Operations","Global Operations","O-6","Current operations.",["Direct and monitor current operations"],"J0 / CDRUSSPACECOM","Parent service"),
+ j4:st("J4","Logistics","Logistics","O-6","Logistics.",["Logistics planning and support"],"J0 / CDRUSSPACECOM","Parent service"),
+ j5:st("J5","Strategy, Plans and Policy","Strategy, Plans & Policy","O-6","Plans and policy.",["Campaign and contingency planning","Strategy and policy"],"J0 / CDRUSSPACECOM","Parent service"),
+ j6:st("J6","Digital Superiority","Digital Superiority","O-6","Command, control, communications, and cyber.",["Communications and digital systems"],"J0 / CDRUSSPACECOM","Parent service"),
+ j7:st("J7","Development and Training","Development & Training","O-6","Joint training and exercises.",["Joint training, exercises, and force development"],"J0 / CDRUSSPACECOM","Parent service"),
+ j8:st("J8","Capabilities and Resources","Capabilities & Resources","O-6","Requirements and resources.",["Capability requirements and resourcing"],"J0 / CDRUSSPACECOM","Parent service"),
 
  dcomspacefor:st("DCOMSPACEFOR","Deputy Commander, Space Forces","Deputy Commander","O-7","Approves actions, orders, and plans as the commander authorizes.",["Approve actions, orders, and plans when authorized","Space Force liaison officers to other components align under this position"],"COMSPACEFOR","COMSPACEFOR",["Liaison officers to other components"],["spfi","s4spage"]),
  dcjfscc:st("Deputy CJFSCC","Deputy Combined Joint Force Space Component Commander","Deputy for joint/combined ops","O-7","Deputy for the joint and combined (CJFSCC) role.",["Assist the CJFSCC in conducting joint space operations"],"CJFSCC","Parent service",["As delegated"],["s4spage"]),
@@ -733,6 +739,10 @@ var Q = {
  sq11sws:sq("11 SWS","11th Space Warning Squadron","Missile warning, missile defense, battlespace awareness, technical intelligence","Buckley SFB, CO","Mission Delta 4"),
  sq12sws:sq("12 SWS","12th Space Warning Squadron","Missile warning and space domain awareness","Pituffik Space Base, Greenland","Mission Delta 4"),
  sq13sws:sq("13 SWS","13th Space Warning Squadron","Missile warning, missile defense, and space domain awareness","Clear SFS, AK","Mission Delta 4"),
+ sq62cys:sq("62 CYS","62nd Cyberspace Squadron","Mission defense teams protecting delta mission communications (named in the Mission Delta 4 fact sheet)","Buckley SFB, CO","Activated under Delta 6; current parent not published","Presentation not stated publicly",["md4fs"]),
+ sq64cys:sq("64 CYS","64th Cyberspace Squadron","Defensive cyber support to the missile warning mission (Delta 4)",null,"Activated under Delta 6; current parent not published","Presentation not stated publicly",["sd6cys"]),
+ sq68cys:sq("68 CYS","68th Cyberspace Squadron","Defensive cyber support to the SATCOM mission (Delta 8)",null,"Activated under Delta 6; current parent not published","Presentation not stated publicly",["sd6cys"]),
+ sq69cys:sq("69 CYS","69th Cyberspace Squadron","Defensive cyberspace operations for the Satellite Control Network (Feb 2024 fact sheet); activated to support Delta 9","Schriever SFB, CO","Activated under Delta 6; current parent not published","Presentation not stated publicly",["cys69","sd6cys"]),
  sq65cys:sq("65 CYS","65th Cyberspace Squadron","Cyberspace warfare",null,"Mission Delta 6",null,["md6fs"]),
  sq645cys:sq("645 CYS","645th Cyberspace Squadron","Cyberspace warfare",null,"Mission Delta 6",null,["md6fs"]),
  sq72isrs:sq("72 ISRS","72nd ISR Squadron","Global, deployable ISR to characterize adversary activity for joint force commanders, the Space Force, and the Intelligence Community","Peterson SFB, CO","Space Delta 7",null,["del7fs"]),
@@ -770,10 +780,11 @@ Q.bn1sp=abn("1st SPACE BN","1st Space Battalion","Space support and space contro
 Q.bn2sp=abn("2nd SPACE BN","2nd Space Battalion (Army Reserve)","Space support and space control (Army Reserve)","Fort Carson, CO",["3rd, 5th and 6th Space Companies (Army Space Support Teams)","8th and 23rd Space Companies (space control)"]);
 Q.bn117sp=abn("117th SPACE BN","117th Space Battalion (Colorado Army National Guard)","Army Space Support Teams (217th and 1158th Space Companies)","Colorado");
 Q.tpy2=abn("AN/TPY-2 BTRYS","Forward-based missile defense radar batteries (10th–14th)","AN/TPY-2 radar batteries in Japan, Turkey, Saudi Arabia, and Israel","Overseas");
+["sq62cys","sq64cys","sq68cys","sq69cys"].forEach(function(k){Q[k].verify=["This squadron exists, but its current parent delta is not published. The current Mission Delta 6 fact sheet lists only the 65th and 645th Cyberspace Squadrons."];});
 Q.tpy2.rank=null;Q.tpy2.sup=["Radar battery crews"];Q.tpy2.rep={opcon:"Not stated in public sources; likely the geographic combatant command where each battery is based, with the sensors also supporting USSPACECOM",adcon:"1st Space Brigade (Department of the Army)"};
 Q.tpy2.verify=["Public sources do not state who holds OPCON or TACON of the forward-based AN/TPY-2 batteries."];
-Q.bn2sp.rep={opcon:"When mobilized: USASMDC, as delegated, with TACON for space operations held by the CJFSCC. When not on active duty: training and readiness oversight (TRO) only, with no OPCON or TACON",adcon:"Department of the Army (U.S. Army Reserve)"};
-Q.bn117sp.rep={opcon:"When federalized: USASMDC, as delegated, with TACON for space operations held by the CJFSCC. In state status: the Governor of Colorado; not under USSPACECOM authority",adcon:"Colorado Army National Guard (state); Department of the Army when federalized"};
+Q.bn2sp.rep={opcon:"When mobilized: USASMDC (OPCON) and CJFSCC (TACON). Otherwise, training oversight only.",adcon:"U.S. Army Reserve"};
+Q.bn117sp.rep={opcon:"When federalized: USASMDC (OPCON) and CJFSCC (TACON). Otherwise, under the Governor of Colorado.",adcon:"Colorado Army National Guard"};
 var ALL = Object.assign({},N,S,Q);
 
 /* ================= Views ================= */
@@ -796,7 +807,7 @@ var VIEWS = {
    {band:'<b class="o">OPCON</b> held by each service component · <b class="t">TACON</b> for space operations: CJFSCC'},
    {name:"Other service components: their forces",groups:[
      {label:"Army (USASMDC)",nodes:["asb1"]},
-     {label:"Marine Corps (MARFORSPACE): coordinated, not commanded",nodes:["mcic","fmfspace"]},
+     {label:"Marine Corps (MARFORSPACE)",note:"MCIC and FMF space elements are not assigned to USSPACECOM; MARFORSPACE coordinates with them.",nodes:["marf","mcic","fmfspace"]},
      {label:"Navy (NAVSPACECOM)",nodes:["navyf"]},
      {label:"Air Force (AFSPACE)",nodes:["det3"]}]}
   ]},
@@ -821,7 +832,7 @@ var VIEWS = {
 var RULES = {
  opcon:[
   ["cocom","COCOM: the combatant commander","<b>The Commander, U.S. Space Command (CDRUSSPACECOM)</b> holds combatant command (COCOM) over every force assigned and presented to U.S. Space Command (USSPACECOM). It cannot be delegated.","AFDP 3-14; 10 U.S.C. §164"],
-  ["opcon","OPCON: each service component","Each <b>service component commander keeps operational control (OPCON)</b> of its own service's forces: the Commander, Space Forces (COMSPACEFOR) for Space Force; U.S. Army Space and Missile Defense Command (USASMDC) for Army; U.S. Navy Space Command (NAVSPACECOM) for Navy; Air Forces Space (AFSPACE) for Air Force. U.S. Marine Corps Forces Space Command (MARFORSPACE) directs no units.","SFDD-1; AFDP 3-0"],
+  ["opcon","OPCON: each service component","Each <b>service component commander keeps operational control (OPCON)</b> of its own service's forces: the Commander, Space Forces (COMSPACEFOR) for Space Force; U.S. Army Space and Missile Defense Command (USASMDC) for Army; U.S. Navy Space Command (NAVSPACECOM) for Navy; U.S. Marine Corps Forces Space Command (MARFORSPACE) for Marine Corps; Air Forces Space (AFSPACE) for Air Force. Holding OPCON is not directing the fight: the CJFSCC does that through TACON.","SFDD-1; AFDP 3-0"],
   ["tacon","TACON: the CJFSCC","<b>The Combined Joint Force Space Component Commander (CJFSCC), who is also the commander of U.S. Space Forces–Space (S4S), holds tactical control (TACON) of all units assigned to USSPACECOM</b>, whatever their service, plus coalition space forces. The CJFSCC directs how they are employed in space operations through five operations centers.","SFDD-1 Ch. 4; USSPACECOM C/JFSCC designation, Jan 2024"]
  ],
  adcon:[
@@ -835,7 +846,7 @@ var MATRIX = [
  {k:"cdr",name:"CDRUSSPACECOM",sub:"Combatant commander",cc:"All forces assigned and presented to USSPACECOM",op:"Inherent in COCOM; delegated to each service component",ta:"Inherent; delegated to the CJFSCC for all assigned units",ad:"None (a service function)"},
  {k:"s4s",name:"COMSPACEFOR / CJFSCC",sub:"S4S commander, two hats",cc:"—",op:"All Space Force forces assigned or presented to USSPACECOM: Deltas 5 and 15, presented combat formations, center personnel",ta:"All units assigned to USSPACECOM, including other services' space forces and coalition space forces",ad:"Space Force forces assigned to S4S (Deltas 5 and 15, HQ and center personnel), for the Secretary of the Air Force; only specified ADCON of formations from CFC"},
  {k:"army",name:"USASMDC",sub:"Army component",cc:"—",op:"Army space forces made available to USSPACECOM (1st Space Brigade elements)",ta:"— (held by the CJFSCC)",ad:"Army forces, through the Department of the Army"},
- {k:"marines",name:"MARFORSPACE",sub:"Marine Corps component",cc:"—",op:"None in public sources; does not direct units",ta:"—",ad:"Marine forces, through the Department of the Navy"},
+ {k:"marines",name:"MARFORSPACE",sub:"Marine Corps component",cc:"—",op:"Marine Corps forces made available to USSPACECOM (units not listed publicly); does not direct them",ta:"— (held by the CJFSCC)",ad:"Marine forces, through the Department of the Navy"},
  {k:"navy",name:"NAVSPACECOM",sub:"Navy component",cc:"—",op:"Any Navy forces made available (not specified publicly)",ta:"— (held by the CJFSCC)",ad:"Navy forces, through the Department of the Navy"},
  {k:"af",name:"AFSPACE",sub:"Air Force component (First Air Force)",cc:"—",op:"Detachment 3, Human Space Flight Support",ta:"— (held by the CJFSCC)",ad:"Air Force forces, through Air Combat Command"},
  {k:"jfcc",name:"JFCC IMD",sub:"Functional component",cc:"—",op:"None in public sources",ta:"None in public sources",ad:"—"},
