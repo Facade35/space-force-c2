@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>USSPACECOM Space Force Chain of Command</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: echelon tiers stacked top to bottom, joined by labeled authority bands; click any node for a detail panel (side panel on wide screens, bottom sheet on phones). Single dark look by design. */
+:root{
+  --bg:#0a0e16;
+  --surface:#111827;
+  --surface-2:#172033;
+  --line:#26324a;
+  --fg:#e3e9f3;
+  --muted:#93a0b8;
+  --dim:#5f6b82;
+  --opcon:#6cb4ff;
+  --opcon-soft:rgba(108,180,255,.13);
+  --adcon:#e2b65a;
+  --adcon-soft:rgba(226,182,90,.13);
+  --verify:#f08a6c;
+  --verify-soft:rgba(240,138,108,.12);
+  --ok:#7fd1a8;
+  --font-display:"Saira Condensed","Arial Narrow",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.5}
+a{color:var(--opcon)}
+a:focus-visible,button:focus-visible,.node:focus-visible,.chip:focus-visible{outline:2px solid var(--opcon);outline-offset:2px}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Banner */
+.classbar{background:#0f3d24;color:#d9f5e5;text-align:center;font:600 12px/1 var(--font-mono);letter-spacing:.12em;padding-block:7px}
+header.top{position:relative;border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(1px 1px at 12% 30%,rgba(255,255,255,.55),transparent 60%),
+    radial-gradient(1px 1px at 38% 70%,rgba(255,255,255,.35),transparent 60%),
+    radial-gradient(1px 1px at 64% 22%,rgba(255,255,255,.45),transparent 60%),
+    radial-gradient(1px 1px at 86% 58%,rgba(255,255,255,.3),transparent 60%),
+    radial-gradient(1.5px 1.5px at 74% 84%,rgba(255,255,255,.4),transparent 60%),
+    linear-gradient(180deg,#0d1424,var(--bg));}
+.top .wrap{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;padding-block:22px 20px}
+.art-slot{width:92px;height:92px;border:1.5px dashed var(--dim);border-radius:10px;display:grid;place-items:center;text-align:center;font:500 10px/1.25 var(--font-mono);color:var(--muted);padding:6px;letter-spacing:.04em}
+.art-slot img{max-width:100%;max-height:100%}
+.eyebrow{font:500 12px/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(28px,4.2vw,44px);line-height:1.02;margin:6px 0 8px;letter-spacing:.01em;text-wrap:balance}
+.disclaimer{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:13px;color:var(--muted)}
+.disclaimer strong{color:var(--fg);font-weight:600}
+.asof{font-family:var(--font-mono);font-size:12px;border:1px solid var(--line);padding:3px 8px;border-radius:4px;color:var(--fg)}
+
+/* Controls */
+.controls{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;padding-block:18px 6px}
+.toggle{display:inline-flex;flex-wrap:wrap;max-width:100%;border:1px solid var(--line);border-radius:8px;padding:3px;background:var(--surface)}
+.toggle button{appearance:none;border:0;background:transparent;color:var(--muted);font:600 14px/1 var(--font-body);padding:10px 14px;border-radius:6px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.toggle button[aria-pressed="true"][data-view="opcon"]{background:var(--opcon-soft);color:var(--opcon)}
+.toggle button[aria-pressed="true"][data-view="adcon"]{background:var(--adcon-soft);color:var(--adcon)}
+.swatch{width:22px;height:0;border-top:2px solid currentColor}
+.swatch.dotted{border-top-style:dotted;border-top-width:3px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.vbadge{font:600 10px/1 var(--font-mono);letter-spacing:.06em;color:var(--verify);background:var(--verify-soft);border:1px solid rgba(240,138,108,.35);padding:3px 5px;border-radius:3px;text-transform:uppercase}
+.viewnote{font-size:14px;color:var(--muted);max-width:80ch;margin:8px 0 0}
+.viewnote b{color:var(--fg);font-weight:600}
+
+/* Main grid */
+main .wrap{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start;padding-block:12px 40px}
+.chart{min-width:0}
+.tier{display:grid;gap:10px;padding-top:6px}
+.tier-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.tier-name{font:600 12px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.groups{display:flex;flex-wrap:wrap;gap:12px}
+.group{flex:1 1 220px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px;background:rgba(17,24,39,.55);display:grid;gap:8px;align-content:start}
+.group.solo{border:0;padding:0;background:none}
+.group-label{font:500 12px/1.3 var(--font-mono);color:var(--muted)}
+.group-nodes{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.group.solo .group-nodes{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+
+.band{display:flex;align-items:center;gap:10px;padding:10px 0 10px 18px;margin-left:18px;font:500 12px/1.3 var(--font-mono);color:var(--muted);border-left:2px solid var(--opcon)}
+.view-adcon .band{border-left:3px dotted var(--adcon)}
+.band b{font-weight:600;letter-spacing:.06em}
+.view-opcon .band b{color:var(--opcon)}
+.view-adcon .band b{color:var(--adcon)}
+
+.node{text-align:left;width:100%;appearance:none;font:inherit;color:inherit;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:5px;transition:border-color .15s,background .15s}
+.node:hover{border-color:#3a4a6b;background:var(--surface-2)}
+.node[aria-current="true"]{border-color:var(--opcon);box-shadow:0 0 0 1px var(--opcon) inset}
+.view-adcon .node[aria-current="true"]{border-color:var(--adcon);box-shadow:0 0 0 1px var(--adcon) inset}
+.node.key{border-color:#3d5a86;background:linear-gradient(180deg,#14223a,#111827)}
+.view-adcon .node.key{border-color:#6b5a32;background:linear-gradient(180deg,#221d12,#111827)}
+.node.context{opacity:.62}
+.node.context:hover{opacity:.9}
+.node-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.abbr{font:600 12px/1.2 var(--font-mono);color:var(--muted);letter-spacing:.03em}
+.rank{font:500 11px/1 var(--font-mono);color:var(--fg);border:1px solid var(--line);padding:3px 5px;border-radius:3px;white-space:nowrap}
+.node-title{font-family:var(--font-display);font-weight:600;font-size:18px;line-height:1.12;letter-spacing:.01em}
+.node-sum{font-size:13px;color:var(--muted);line-height:1.4}
+.node-foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 11px/1.2 var(--font-mono);color:var(--dim)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.chip{appearance:none;font:500 11.5px/1.2 var(--font-mono);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 6px;cursor:pointer}
+.chip:hover{border-color:#3a4a6b}
+.chip.staff{color:var(--muted)}
+.nodewrap{display:grid;gap:8px;min-width:0}
+.group.wide{flex:2 1 420px}
+.group.wide .group-nodes{grid-template-columns:1fr}
+.staffblock{display:grid;gap:8px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg)}
+.sb-row{display:grid;gap:5px}
+.sb-label{font:600 10.5px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.sb-grid{display:grid;gap:5px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.sb-grid.dir{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+.sb-tile{appearance:none;text-align:left;cursor:pointer;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 8px;display:grid;gap:2px;min-width:0}
+.sb-tile:hover{border-color:#3a4a6b;background:var(--surface-2)}
+.sb-tile:focus-visible{outline:2px solid var(--opcon);outline-offset:2px}
+.sb-tile b{font:600 12px/1.1 var(--font-mono)}
+.sb-tile span{font-size:11.5px;line-height:1.25;color:var(--muted)}
+.hatnote{font:500 11px/1.3 var(--font-mono);color:var(--opcon);}
+.view-adcon .hatnote{color:var(--adcon)}
+
+/* Concept strip */
+.concept{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:14px 0 20px}
+.concept div{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface);min-width:0}
+.concept h3{margin:0 0 4px;font:600 13px/1.2 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+.concept p{margin:0;font-size:13.5px;color:var(--muted)}
+.concept .o h3{color:var(--opcon)}
+.concept .a h3{color:var(--adcon)}
+
+/* Detail panel */
+.panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:18px}
+.panel h2{font-family:var(--font-display);font-weight:700;font-size:26px;line-height:1.05;margin:4px 0 6px;text-wrap:balance}
+.panel .lead{font-size:14px;color:var(--fg);margin:0 0 10px}
+.panel h4{margin:16px 0 6px;font:600 11px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.panel ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:13.5px}
+.panel p{font-size:13.5px;margin:0}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin:8px 0 0}
+.facts dt{color:var(--muted);font-family:var(--font-mono);font-size:11.5px;padding-top:2px}
+.facts dd{margin:0}
+.rel{display:grid;gap:6px}
+.rel div{border-left:2px solid var(--opcon);padding:2px 0 2px 10px;font-size:13.5px}
+.rel div.ad{border-left:3px dotted var(--adcon)}
+.rel b{font:600 11px/1 var(--font-mono);letter-spacing:.08em;display:block;margin-bottom:2px}
+.rel .op b{color:var(--opcon)}
+.rel .ad b{color:var(--adcon)}
+.verify{margin-top:14px;border:1px solid rgba(240,138,108,.35);background:var(--verify-soft);border-radius:8px;padding:10px 12px}
+.verify h4{color:var(--verify);margin-top:0}
+.src{font-size:12.5px;color:var(--muted)}
+.src a{word-break:break-word}
+.linkbtn{appearance:none;background:none;border:0;padding:0;color:var(--opcon);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.close{display:none}
+.empty-hint{color:var(--muted);font-size:14px}
+
+/* Lower sections */
+section.ref{border-top:1px solid var(--line);padding-block:28px}
+section.ref h2{font-family:var(--font-display);font-weight:700;font-size:28px;margin:0 0 12px}
+.gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px 28px}
+.gloss dl{margin:0}
+.gloss dt{font:600 13px/1.3 var(--font-mono);color:var(--fg)}
+.gloss dd{margin:2px 0 10px;font-size:13.5px;color:var(--muted)}
+ol.sources{margin:0;padding-left:22px;display:grid;gap:8px;font-size:13.5px;max-width:110ch}
+ol.sources li{color:var(--muted);min-width:0;overflow-wrap:anywhere}
+ol.sources li b{color:var(--fg);font-weight:500}
+.foot{font-size:12.5px;color:var(--dim);padding-block:20px 36px;border-top:1px solid var(--line)}
+
+@media (max-width:980px){
+  main .wrap{grid-template-columns:minmax(0,1fr)}
+  .panel{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:78vh;border-radius:14px 14px 0 0;z-index:20;
+    padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+    box-shadow:0 -12px 40px rgba(0,0,0,.6)}
+  .panel.idle{display:none}
+  .close{display:inline-block;float:right;appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:6px 10px;font:500 13px/1 var(--font-body);cursor:pointer}
+}
+@media (max-width:520px){
+  .top .wrap{grid-template-columns:1fr}
+  .art-slot{width:72px;height:72px}
+  .group-nodes,.group.solo .group-nodes{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+
+<div class="classbar">UNCLASSIFIED · FOR INFORMATIONAL AND EDUCATIONAL (TRAINING) USE</div>
+
+<header class="top">
+  <div class="wrap">
+    <!-- APPROVED ARTWORK SLOT: replace the text below with <img src="your-approved-emblem.png" alt="[approved emblem]">. No official emblems are drawn on this page. -->
+    <div class="art-slot" id="art-slot" aria-label="Placeholder for approved artwork">[APPROVED<br>ARTWORK<br>SLOT]</div>
+    <div>
+      <div class="eyebrow">Training reference · U.S. Space Command (USSPACECOM)</div>
+      <h1>Space Force Chain of Command at U.S. Space Command</h1>
+      <div class="disclaimer">
+        <strong>Illustrative only. Not official guidance. Organizational structures change.</strong>
+        <span class="asof">As of 21 Oct 2026</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="toggle" role="group" aria-label="Line of authority">
+      <button type="button" id="btn-opcon" data-view="opcon" aria-pressed="true"><span class="swatch"></span>Operational chain (OPCON)</button>
+      <button type="button" id="btn-adcon" data-view="adcon" aria-pressed="false"><span class="swatch dotted"></span>Administrative chain (ADCON)</button>
+    </div>
+    <div class="legend">
+      <span><span class="swatch" style="color:var(--opcon)"></span>Operational authority</span>
+      <span><span class="swatch dotted" style="color:var(--adcon)"></span>Administrative authority</span>
+      <span><span class="vbadge">Verify</span>not confirmed in public sources</span>
+      <span>Click any box or tag for details</span>
+    </div>
+  </div>
+  <p class="viewnote" id="viewnote"></p>
+  <div class="concept">
+    <div class="o"><h3>One commander, two chains</h3><p>The Commander, Space Forces (COMSPACEFOR) of U.S. Space Forces–Space (S4S) answers to the Commander of U.S. Space Command for operations, and to the Chief of Space Operations (CSO) for administration and support of Space Force personnel.</p></div>
+    <div class="a"><h3>Generate vs. employ</h3><p>Combat Forces Command (CFC) organizes, trains and equips most Space Force operational units. When they are ready, combat formations are presented to S4S, which employs them for U.S. Space Command.</p></div>
+    <div><h3>Same commander, extra hat</h3><p>The S4S commander is also the Combined Joint Force Space Component Commander (CJFSCC), conducting joint space operations through five operations centers.</p></div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="chart" id="chart" aria-live="polite"></div>
+    <aside class="panel idle" id="panel" aria-label="Details">
+      <p class="empty-hint">Select a box in the chart to see its mission, responsibilities, command authorities, who it reports to, and who it supervises.</p>
+    </aside>
+  </div>
+</main>
+
+<section class="ref">
+  <div class="wrap">
+    <h2>Command authorities and terms</h2>
+    <div class="gloss" id="gloss"></div>
+  </div>
+</section>
+
+<section class="ref">
+  <div class="wrap">
+    <h2>Sources</h2>
+    <p class="src" style="margin:0 0 12px;max-width:100ch">Content is drawn only from the unclassified sources below. Where public sources conflict or are silent, the item is marked <span class="vbadge">Verify</span>. Wikipedia entries are secondary sources and are used only for unit lineage and squadron listings.</p>
+    <ol class="sources" id="sources"></ol>
+  </div>
+</section>
+
+<div class="wrap foot">
+  Illustrative only. Not official guidance. Organizational structures change. As of 21 Oct 2026. Unclassified; built only from publicly available material. Not endorsed by the U.S. Space Force, U.S. Space Command, or the Department of the Air Force. No official emblems, seals, patches, or logos are reproduced.
+</div>
+
+<script>
+(function(){
+/* ---------- Sources ---------- */
+var SOURCES = {
+  spfmd11:{t:"Space Force Mission Directive (SPFMD) 11, United States Space Forces–Space Component Field Command, 22 Jul 2025",u:"https://static.e-publishing.af.mil/production/1/ussf_coo/publication/spfmd11/spfmd11.pdf"},
+  spfi:{t:"Space Force Instruction (SPFI) 13-105, SPACEFOR Staff Operations, Readiness, and Structures, 12 Apr 2023",u:"https://static.e-publishing.af.mil/production/1/ussf_coo/publication/spfi13-105/spfi13-105.pdf"},
+  del5md:{t:"S4S Mission Directive S4SMD-DEL5 (Space Delta 5), 27 Feb 2026",u:"https://static.e-publishing.af.mil/production/1/s4s/publication/s4smd-del5/s4smd-del5.pdf"},
+  s4spage:{t:"U.S. Space Force, “Space Forces – Space” component page (spaceforce.mil)",u:"https://www.spaceforce.mil/About-Us/-Space-Force-Components/US-Space-Forces-Space/"},
+  s4sfact:{t:"U.S. Space Forces–Space Fact Sheet, Vandenberg SFB, Dec 2023",u:"https://www.vandenberg.spaceforce.mil/Portals/18/S4S%20Fact%20Sheet.pdf"},
+  crs:{t:"Congressional Research Service IF12840, Defense Primer: U.S. Space Command (SPACECOM), 12 Sep 2025",u:"https://www.everycrsreport.com/files/2025-09-12_IF12840_f1191a72de0dcc2c97771012ebafd28d64f54544.html"},
+  asf:{t:"Air & Space Forces Magazine, “USSF Creates New Component for SPACECOM,” 12 Dec 2023",u:"https://www.airandspaceforces.com/space-force-new-component-spacecom/"},
+  bd:{t:"Breaking Defense, “New Space Force ‘combat squadrons’ to allow tailored deployment, alleviate ‘exhaustion’: Officials,” Feb 2024",u:"https://breakingdefense.com/2024/02/new-space-force-combat-squadrons-to-allow-tailored-deployment-alleviate-exhaustion-officials/"},
+  cfc:{t:"USSF Combat Forces Command, “About Combat Forces Command”",u:"https://www.ussf-cfc.spaceforce.mil/About-Us/About-Combat-Forces-Command"},
+  spfmd9:{t:"SPFMD 9, United States Space Forces–Central Component Field Command, 23 Jul 2025 (comparison for future CENTCOM expansion)",u:"https://static.e-publishing.af.mil/production/1/ussf_coo/publication/spfmd9/spfmd9.pdf"},
+  wcfc:{t:"Wikipedia, “United States Space Force Combat Forces Command” (secondary)",u:"https://en.wikipedia.org/wiki/United_States_Space_Force_Combat_Forces_Command"},
+  ws4s:{t:"Wikipedia, “United States Space Forces – Space” (secondary)",u:"https://en.wikipedia.org/wiki/United_States_Space_Forces_%E2%80%93_Space"},
+  wdel:{t:"Wikipedia unit articles: Mission Delta 2, Mission Delta 3 (Space Delta 3), Mission Delta 4, Space Delta 5, Space Delta 6, Space Delta 8, Space Delta 9, Space Delta 15 (secondary)",u:"https://en.wikipedia.org/wiki/Space_Delta_15"},
+  wjfcc:{t:"Wikipedia, “Joint Functional Component Command for Integrated Missile Defense” (secondary)",u:"https://en.wikipedia.org/wiki/Joint_Functional_Component_Command_for_Integrated_Missile_Defense"},
+  spacecom:{t:"U.S. Space Command, \u201cWarfighting Units\u201d (spacecom.mil)",u:"https://www.spacecom.mil/About/Warfighting-Units/"},
+  mwc:{t:"Missile Warning Center Fact Sheet, 2 Dec 2022",u:"https://www.vandenberg.spaceforce.mil/Portals/18/MWC%20Fact%20Sheet-6%20Dec%2022.pdf"},
+  jopc:{t:"Joint Overhead Persistent Infrared Center Fact Sheet, 28 Dec 2022",u:"https://www.vandenberg.spaceforce.mil/Portals/18/JOPC%20Fact%20Sheet%20update_CAODec22.pdf"},
+  jnwc:{t:"Joint Navigation Warfare Center Fact Sheet, 28 Dec 2022",u:"https://www.vandenberg.spaceforce.mil/Portals/18/JNWC-FactSheet-CAO%20Dec%2022.pdf"},
+  afspace:{t:"Air Force News, \u201cFirst Air Force supports US Space Command as \u2018Air Forces Space\u2019\u201d",u:"https://www.af.mil/News/Article-Display/Article/3030503/first-air-force-supports-us-space-command-as-air-forces-space/"},
+  wmar:{t:"Wikipedia, \u201cUnited States Marine Corps Forces Space Command\u201d (secondary)",u:"https://en.wikipedia.org/wiki/United_States_Marine_Corps_Forces_Space_Command"},
+  msst:{t:"Marine Corps Gazette, \u201cThe Marine Space Support Team Concept,\u201d 2019",u:"https://www.mca-marines.org/gazette/the-marine-space-support-team-concept/"},
+  mcic:{t:"Seapower Magazine, \u201cMarine Corps Activated Marine Corps Information Command,\u201d Jan 2023",u:"https://seapowermagazine.org/marine-corps-activated-marine-corps-information-command/"},
+  wnav:{t:"Wikipedia, \u201cNavy Space Command\u201d (secondary)",u:"https://en.wikipedia.org/wiki/Navy_Space_Command"},
+  wsmdc:{t:"Wikipedia, \u201cUnited States Army Space and Missile Defense Command,\u201d \u201c1st Space Brigade,\u201d and \u201c100th Missile Defense Brigade\u201d (secondary)",u:"https://en.wikipedia.org/wiki/SMDC"},
+  jp1:{t:"Joint Publication (JP) 1, Vol 2, The Joint Force, and 10 U.S.C. §164 (command authority definitions; standard joint terms, not re-opened for this build)",u:"https://www.jcs.mil/Doctrine/Joint-Doctrine-Pubs/"},
+};
+
+/* ---------- Nodes ---------- */
+var V = "Verify";
+var N = {
+ cdr:{abbr:"CDRUSSPACECOM",title:"Commander, U.S. Space Command",rank:"O-10",kind:"key",
+  sum:"Combatant commander for military operations in space.",
+  location:"Peterson SFB, CO",
+  size:"About 1,700 people assigned to the headquarters; about 18,000 joint personnel across its components (CRS, Sep 2025)",
+  mission:"U.S. Space Command “plans, executes, and integrates military spacepower into multi-domain global operations.” Its area of responsibility begins at 100 km above mean sea level.",
+  resp:["Space operations, sensor management, and satellite communications management","Trans-regional missile defense (through JFCC IMD)","Directs its service and functional components"],
+  auth:["Combatant command (command authority) (COCOM) over the forces assigned and presented to USSPACECOM, including Space Force combat formations presented through S4S. COCOM cannot be delegated.","Delegates operational control (OPCON) of each service's forces to that service component commander (for Space Force forces, COMSPACEFOR)","Confers functional component authorities on the CJFSCC and JFCC IMD"],
+  rep:{opcon:"National command authorities (outside the scope of this chart)",adcon:"Not in the Space Force administrative chain. A combatant commander does not hold service ADCON."},
+  sup:["Five service components (Army, Navy, Marine Corps, Air Force, Space Force)","Two functional components (CJFSCC and JFCC IMD)","Headquarters joint staff (J0–J8)"],
+  staffGroups:[["Command section",["dcdr","csel"]],["Directorates",["j0","j1","j2","j3","j4","j5","j6","j7","j8"]],["Special staff",["spec"]]],
+  src:["crs","spacecom","jp1"],
+  verify:["Typical size figures are from CRS (Sep 2025) and may have changed.","Under joint doctrine (JP 1), forces transferred (attached) to a combatant command are normally under OPCON as specified by the Secretary, while COCOM applies to assigned forces. Confirm the wording you want trainees to learn for presented forces."]},
+ army:{abbr:"USASMDC",title:"U.S. Army Space and Missile Defense Command",rank:"O-9",kind:"comp",
+  sum:"Army service component to USSPACECOM (and USSTRATCOM). Its commander also leads JFCC IMD.",
+  location:"Redstone Arsenal, AL",
+  mission:"Develops and provides global space, missile defense, and high-altitude capabilities to the Army, the joint force, and allies and partners.",
+  resp:["Present Army space forces (space support, space control) to USSPACECOM","Present ground-based midcourse missile defense forces","Commander serves as Commander, JFCC IMD"],
+  auth:["OPCON of Army forces as delegated by CDRUSSPACECOM","ADCON of Army forces through the Department of the Army"],
+  rep:{opcon:"Commander, USSPACECOM",adcon:"Department of the Army"},
+  sup:["1st Space Brigade","100th Missile Defense Brigade (GMD)","32nd and 263rd Army Air and Missile Defense Commands (assigned Oct 2025, secondary source)"],
+  kids:["asb1","mdb100"],src:["spacecom","wsmdc","crs"],
+  verify:["Assignment of the 32nd and 263rd AAMDCs (Oct 2025) comes from a secondary source.","Which Army units are under USSPACECOM OPCON versus other combatant commands."]},
+ asb1:{abbr:"1st SPACE BDE",title:"1st Space Brigade",rank:"O-6",kind:"unit",
+  sum:"Army space support and space control forces.",location:"Colorado Springs, CO (battalions at Fort Carson)",
+  mission:"Provides space combat power to Army units: space support, space control, and forward-based missile defense radar batteries.",
+  resp:["Army Space Support Teams (ARSSTs) for deployed commanders","Space control companies","AN/TPY-2 forward-based radar batteries (10th\u201314th Batteries)"],
+  auth:["Army ADCON through USASMDC","OPCON as delegated by the Army component"],
+  rep:{opcon:"USASMDC (Army component), as delegated",adcon:"USASMDC"},
+  sup:["1st Space Battalion (active)","2nd Space Battalion (Army Reserve)","117th Space Battalion (Colorado Army National Guard, training and readiness oversight only)","Missile defense batteries"],
+  sq:["bn1sp","bn2sp","bn117sp","tpy2"],src:["wsmdc"],
+  verify:["Unit list is from a secondary source; JTAGS moved to the Space Force in 2023."]},
+ mdb100:{abbr:"100th MDB",title:"100th Missile Defense Brigade (Ground-based Midcourse Defense)",rank:"O-6",kind:"unit",
+  sum:"Ground-based midcourse defense of the United States.",location:"Schriever SFB, CO",
+  mission:"Operates the Ground-Based Interceptor system for midcourse defense of the homeland. Multi-component unit (Colorado Army National Guard with active duty).",
+  resp:["Ground-based midcourse defense operations","Fire direction for Ground-Based Interceptors at Fort Greely and Vandenberg"],
+  auth:["Army ADCON through USASMDC and the Colorado National Guard"],
+  rep:{opcon:"Not confirmed (see Verify)",adcon:"USASMDC / Colorado Army National Guard"},
+  sup:["49th Missile Defense Battalion","Detachment 1 (Vandenberg)","Detachment 2 (Fort Drum)"],sq:["bn49md","mdbdet1","mdbdet2"],src:["wsmdc"],
+  verify:["Operational chain for homeland ballistic missile defense (USSPACECOM vs. U.S. Northern Command) is not stated in the sources reviewed."]},
+ marines:{abbr:"MARFORSPACE",title:"U.S. Marine Corps Forces Space Command",rank:"O-8",kind:"comp",
+  sum:"Marine Corps service component to USSPACECOM; space support to the Fleet Marine Force.",
+  location:"Peterson SFB, CO",
+  mission:"Provides space operational support to the Fleet Marine Force (FMF) while building a convergence capability to increase warfighter lethality. Advises USSPACECOM on integrating with Marine Corps operations.",
+  resp:["Represent Marine Corps capabilities and requirements at USSPACECOM","Coordinate space support to FMF operations","Develop Marine space operations personnel and teams"],
+  auth:["OPCON of Marine forces as delegated by CDRUSSPACECOM","ADCON through the Department of the Navy (Marine Corps)"],
+  rep:{opcon:"Commander, USSPACECOM",adcon:"Department of the Navy (Marine Corps)"},
+  sup:["No permanently assigned operational space units appear in public sources","Coordinates the FMF space capabilities shown below"],
+  kids:["mcic","fmfspace"],src:["spacecom","wmar","mcic","msst"],
+  verify:["Commander grade (O-8): secondary source is inconsistent between O-7 and O-8.","Commander is dual-hatted with Marine Corps Forces Cyberspace Command (MARFORCYBER) and, as of 2023, Marine Corps Information Command; confirm current arrangement.","Which FMF space elements MARFORSPACE can direct versus coordinate is not described publicly."]},
+ mcic:{abbr:"MCIC",title:"Marine Corps Information Command",rank:"O-8",kind:"unit",
+  sum:"Service-retained command integrating cyber, space, influence, and intelligence effects for the FMF.",location:"Fort George G. Meade, MD",
+  mission:"Activated Jan 2023 as the Marine Corps' primary integrator of information capabilities, synchronizing global cyber, space, influence, and intelligence effects in support of the FMF. Led by the same commander as MARFORSPACE as of activation.",
+  resp:["Synchronize cyber, space, influence, and intelligence effects for the FMF"],
+  auth:["Service-retained (not assigned to a combatant command)"],
+  rep:{opcon:"Service-retained",adcon:"Headquarters Marine Corps"},
+  sup:["Marine Corps Information Operations Center","Marine Cryptologic Support Battalion"],src:["mcic"],
+  verify:["Whether MCIC elements are made available to USSPACECOM through MARFORSPACE."]},
+ fmfspace:{abbr:"FMF space elements",title:"Fleet Marine Force space capabilities",rank:V,kind:"unit",
+  sum:"Space planners and teams in the MEFs that MARFORSPACE supports.",location:"Marine Expeditionary Forces (MEFs)",
+  mission:"Marine space capability sits mostly inside the operating forces: space operations officers in each MEF's fires and effects coordination cell, space planners in the MEF Information Groups (MIGs), and Marine Space Support Teams (MSSTs), which first deployed in 2021 supporting U.S. European Command and the 31st Marine Expeditionary Unit.",
+  resp:["Plan, integrate, and coordinate space-based capabilities across warfighting functions","Advise MAGTF commanders on space operations","Request space effects from USSPACECOM and the owning services"],
+  auth:["Belong to their MEF/MAGTF commanders, not to MARFORSPACE"],
+  rep:{opcon:"Their MEF / MAGTF commander (geographic combatant command)",adcon:"Their MEF"},
+  sup:["Marine Space Support Teams","MIG space planners","MEF space operations officers"],src:["msst","wmar"],
+  verify:["MSST structure has been described as a concept under experimentation (2019); current fielding not confirmed.","These elements are FMF assets, shown because MARFORSPACE supports them."]},
+ navy:{abbr:"NAVSPACECOM",title:"U.S. Navy Space Command",rank:"O-9",kind:"comp",
+  sum:"Navy service component to USSPACECOM; dual-hatted with U.S. Fleet Cyber Command / U.S. 10th Fleet.",
+  location:"Fort George G. Meade, MD",
+  mission:"Responsible for Navy information network operations, offensive and defensive cyberspace operations, space operations, and signals intelligence. Gives the Navy global communications and targeting \u201cfrom the sea floor to space\u201d with USSPACECOM.",
+  resp:["Represent Navy space requirements at USSPACECOM","Navy space operations and signals intelligence"],
+  auth:["OPCON of Navy forces as delegated by CDRUSSPACECOM","ADCON through the Department of the Navy"],
+  rep:{opcon:"Commander, USSPACECOM",adcon:"Department of the Navy"},
+  sup:["No assigned satellite operations units: the Naval Satellite Operations Center moved to the Space Force in 2022 (now 10th Space Operations Squadron, Delta 8)"],
+  kids:["fcc"],src:["spacecom","wnav"],verify:["Which Fleet Cyber Command / 10th Fleet units, if any, are made available to USSPACECOM."]},
+ fcc:{abbr:"FCC / C10F",title:"U.S. Fleet Cyber Command / U.S. 10th Fleet",rank:"O-9",kind:"unit",
+  sum:"Same commander as Navy Space Command.",location:"Fort George G. Meade, MD",
+  mission:"Navy cyber and signals intelligence command whose commander is also Commander, Navy Space Command. Shown to explain the dual hat.",
+  resp:["Navy cyberspace operations and signals intelligence"],auth:["Separate chains; not all FCC forces support USSPACECOM"],
+  rep:{opcon:"Other combatant commands as assigned",adcon:"Department of the Navy"},sup:["Navy cyber and cryptologic units (not detailed)"],src:["wnav"]},
+ af:{abbr:"AFSPACE",title:"U.S. Air Forces Space (First Air Force)",rank:"O-9",kind:"comp",
+  sum:"Air Force service component to USSPACECOM; First Air Force wears this hat.",
+  location:"Tyndall AFB, FL",
+  mission:"Provides airpower expertise and advocacy for USSPACECOM's mission and integrates spacepower into First Air Force's homeland defense mission. Commands human space flight support (astronaut rescue and recovery).",
+  resp:["Human Space Flight Support: plan, train, and execute worldwide rescue and recovery of NASA astronauts","Airpower advice and advocacy to CDRUSSPACECOM"],
+  auth:["OPCON of Air Force forces as delegated by CDRUSSPACECOM","ADCON through the Department of the Air Force (Air Combat Command is the force provider)"],
+  rep:{opcon:"Commander, USSPACECOM",adcon:"Air Combat Command / Department of the Air Force"},
+  sup:["Detachment 3, Human Space Flight Support"],kids:["det3"],src:["spacecom","afspace"],
+  verify:["Headquarters location (Tyndall AFB) is not stated in the AFSPACE article.","First Air Force also serves as Continental U.S. NORAD Region and Air Forces Northern; this chart shows only the AFSPACE hat."]},
+ det3:{abbr:"Det 3",title:"Detachment 3, Human Space Flight Support",rank:V,kind:"unit",
+  sum:"Astronaut rescue and recovery for crewed flights.",location:"Patrick SFB, FL",
+  mission:"Oversees rescue force training and alert posture, coordinates astronaut rescue and recovery, and arranges contingency landing, payload security, medical, and airlift or sealift support. Realigned from Space Launch Delta 45 to First Air Force on 15 Jul 2021.",
+  resp:["Rescue force alert posture (Patrick SFB, Joint Base Charleston, Joint Base Pearl Harbor-Hickam)","Contingency landing site support"],
+  auth:["Operational C2 through AFSPACE"],rep:{opcon:"AFSPACE (First Air Force)",adcon:"First Air Force"},sup:["Rescue forces when on alert"],src:["afspace"]},
+ jfcc:{abbr:"JFCC IMD",title:"Joint Functional Component Command for Integrated Missile Defense",rank:"O-9",kind:"comp",
+  sum:"Functional component that synchronizes global missile defense planning.",
+  location:"Schriever SFB, CO",
+  mission:"Synchronizes global missile defense planning in support of the coordinating authority for the combatant commands, the services, and U.S. Government agencies, to deter adversaries and defend the U.S., deployed forces, allies, and partners against missile attack.",
+  resp:["Global missile defense planning and synchronization","Operates the Joint Ballistic Missile Defense Training and Education Center"],
+  auth:["Functional component authorities conferred by CDRUSSPACECOM"],
+  rep:{opcon:"Commander, USSPACECOM",adcon:"Commander's parent service (Army)"},
+  sup:["Missile defense planning staff (no assigned forces listed publicly)"],src:["spacecom","wjfcc","wsmdc"],
+  verify:["Dual-hat with the USASMDC commander comes from secondary sources."]},
+ othersvc:{abbr:"Other services",title:"Army, Navy, Marine Corps and Air Force administrative chains",rank:"\u2014",kind:"context",
+  sum:"Other services' forces at USSPACECOM keep ADCON in their own departments.",
+  mission:"The CSO has no ADCON over Army, Navy, Marine Corps, or Air Force forces. Each service component's people are administered by their own military department.",
+  resp:["Department of the Army: USASMDC","Department of the Navy: Navy Space Command and MARFORSPACE","Department of the Air Force (Air Force): AFSPACE"],auth:["Service ADCON"],
+  rep:{opcon:"\u2014",adcon:"Their military department"},sup:["Their service components"],src:["jp1"]},
+ s4s:{abbr:"S4S/CC · COMSPACEFOR · CJFSCC",title:"Commander, U.S. Space Forces–Space",rank:"O-9",kind:"key",
+  hat:"Dual-hatted: Space Force component commander and CJFSCC",
+  sum:"Space Force service component to USSPACECOM. Commands Space Force combat forces in space operations.",
+  location:"Vandenberg SFB, CA",
+  size:"Not published in the sources reviewed",
+  mission:"S4S, with allies and partners, commands combat forces in space superiority operations to protect and defend USSPACECOM's area of responsibility and to deliver global space-enabled effects to the joint force.",
+  resp:["Prepare and sustain combat-ready command and control forces for USSPACECOM","Plan, integrate, synchronize, and execute space operations and effects as directed by CDRUSSPACECOM","Keep situational awareness of all Space Force personnel assigned or attached to USSPACECOM","Oversee training and readiness of assigned and attached Space Force forces","As CJFSCC, conduct joint space operations on behalf of CDRUSSPACECOM and command assigned multinational forces (Operation Olympic Defender)"],
+  auth:["OPCON and TACON of Space Force forces, as delegated by CDRUSSPACECOM","TACON of other services' forces conducting protect, defend, and deliver missions, when delegated","ADCON on behalf of the Secretary of the Air Force for Space Force forces assigned or attached to USSPACECOM, including specified ADCON of combat formations allocated from other field commands, as directed","Combined joint force space component commander (CJFSCC) authorities conferred by CDRUSSPACECOM"],
+  rep:{opcon:"Commander, USSPACECOM",adcon:"Chief of Space Operations (on behalf of the Secretary of the Air Force)"},
+  sup:["Five CJFSCC operations centers (CSpOC, NSDC, MWC, JOPC, JNWC)","Space Delta 5 and Space Delta 15 (assigned)","Combat formations presented from CFC (attached)","SPACEFOR headquarters staff (S1–S9)"],
+  staffGroups:[["Command section",["dcomspacefor","dcjfscc","cos","sel"]],["Directorates",["s1","s2","s3","s4","s5","s6","s7","s8","s9","wio"]],["Special staff",["sspec"]]],
+  src:["spfmd11","s4spage","s4sfact","spfi","asf"],
+  verify:["Whether S4S headquarters uses the full SPFI 13-105 S-staff (S1–S9) and how its CJFSCC joint role is staffed (S-staff, J-staff, or a mix). SPFI 13-105 (Apr 2023) prescribes S-staff for component field commands but predates S4S.","Headquarters size is not in public sources reviewed."]},
+ cspoc:{abbr:"CSpOC",title:"Combined Space Operations Center",rank:"O-6",kind:"center",
+  sum:"S4S integrating operations center; employs space operations forces.",
+  location:"Vandenberg SFB, CA",
+  mission:"Multinational center that integrates space operations for the CJFSCC. Space Delta 5 forms its Space Force core; the Delta 5 commander is dual-hatted as CSpOC Director.",
+  resp:["Integrate and direct space operations for the CJFSCC","Employ presented space operations forces","Work with coalition centers in Australia, Canada, and the United Kingdom"],
+  auth:["Delegated command authorities over assigned and attached forces (through the Delta 5 commander as Director)"],
+  rep:{opcon:"CJFSCC (S4S/CC)",adcon:"Not an ADCON echelon; personnel fall under Space Delta 5"},sup:["Presented combat forces executing CSpOC-directed operations"],src:["s4sfact","del5md"]},
+ nsdc:{abbr:"NSDC",title:"National Space Defense Center",rank:V,kind:"center",
+  sum:"Space superiority operations to deter aggression.",
+  location:"Schriever SFB, CO",
+  mission:"Conducts space superiority operations to deter aggression and protect U.S. space capabilities. Space Delta 15 presents forces to it.",
+  resp:["Conduct space superiority (protect and defend) operations","Experiments, exercises, and advanced training","Control of space defense and space domain awareness units, with the CSpOC"],
+  auth:["As delegated by the CJFSCC"],rep:{opcon:"CJFSCC (S4S/CC)",adcon:"Not an ADCON echelon"},sup:["Forces presented by Space Delta 15 and other attached formations"],src:["s4sfact","wdel"],
+  verify:["Director rank and whether the Delta 15 commander is dual-hatted as NSDC director."]},
+ mwc:{abbr:"MWC",title:"Missile Warning Center",rank:V,kind:"center",
+  sum:"Missile warning and nuclear detonation detection.",location:"Cheyenne Mountain SFS, CO",
+  mission:"Provides 24/7 global strategic and theater missile warning and nuclear detonation detection for USSPACECOM, national leaders, combatant commanders, and allies, fusing space-based and ground sensor data.",
+  resp:["Strategic and theater missile warning","Nuclear detonation detection","Change control and sustainment advocacy for the Integrated Tactical Warning and Attack Assessment (ITW/AA) network"],auth:["As delegated by the CJFSCC"],rep:{opcon:"CJFSCC (S4S/CC)",adcon:"Not an ADCON echelon"},sup:["Joint personnel from all services and Canadian partners"],src:["s4sfact","mwc"],
+  verify:["Director rank, and which presented formation staffs the center."]},
+ jopc:{abbr:"JOPC",title:"Joint Overhead Persistent Infrared Center",rank:V,kind:"center",
+  sum:"Mission management of overhead persistent infrared (OPIR) sensing.",location:"Buckley SFB, CO",
+  mission:"Conducts unified mission management of the overhead persistent infrared (OPIR) enterprise for national decision makers, warfighters, and the Intelligence Community. Co-founded with the National Geospatial-Intelligence Agency (NGA).",
+  resp:["Plan, task, monitor, and assess OPIR operations","24/7 OPIR reachback and customer support","Tailored support to combatant commands and coalition operations centers"],auth:["As delegated by the CJFSCC"],rep:{opcon:"CJFSCC (S4S/CC)",adcon:"Not an ADCON echelon"},sup:["NGA and Space Force personnel"],src:["s4sfact","jopc"],
+  verify:["Director rank and supporting formations. Some sources abbreviate it JOPIC."]},
+ jnwc:{abbr:"JNWC",title:"Joint Navigation Warfare Center",rank:V,kind:"center",
+  sum:"Positioning, navigation, and timing (PNT) and navigation warfare.",location:"Kirtland AFB, NM",
+  mission:"Enables positioning, navigation, and timing (PNT) superiority for DoD, interagency, and coalition partners through navigation warfare (NAVWAR) expertise.",
+  resp:["PNT and NAVWAR analysis, reachback, and expertise to services and combatant commands","PNT operational field assessments","Interference awareness to commercial and civil users"],auth:["As delegated by the CJFSCC"],rep:{opcon:"CJFSCC (S4S/CC)",adcon:"Not an ADCON echelon"},sup:["NAVWAR planners and analysts"],src:["s4sfact","jnwc"],
+  verify:["Director rank and relationship to Mission Delta 31 (navigation warfare)."]},
+
+ /* Combat deltas (presented, OPCON view) */
+ cdel2:{abbr:"CDEL 2",title:"Combat Delta 2 units",rank:"O-6",kind:"cdel",parent:"md2",
+  sum:"Space domain awareness and tactical space battle management.",
+  mission:"Combat formations presented from Mission Delta 2 to S4S for space domain awareness and tactical space battle management.",
+  resp:["Space domain awareness","Tactical space battle management"],
+  auth:["Under OPCON of COMSPACEFOR when presented; TACON may be delegated to a center"],
+  rep:{opcon:"COMSPACEFOR (S4S), employed through the CJFSCC centers",adcon:"Mission Delta 2 / CFC, with specified ADCON to S4S as directed"},
+  sup:["Combat crews drawn from Mission Delta 2 squadrons"],sq:["sq15ssps","sq18sds","sq19sds","sq20sps"],src:["bd","spfmd11","wdel"],
+  verify:["Exact designation format of combat deltas (for example “CDEL 1-5” appears in S4SMD-DEL5).","Which squadrons' crews are presented; the chart shows parent squadrons.","The list of combat deltas presented to S4S is not published in one public source."]},
+ cdel3:{abbr:"CDEL 3",title:"Combat Delta 3 units",rank:"O-6",kind:"cdel",parent:"md3",
+  sum:"Combat-ready space electromagnetic warfare forces.",mission:"Combat formations presented from Mission Delta 3 for space electromagnetic warfare.",
+  resp:["Space electromagnetic warfare"],auth:["Under OPCON of COMSPACEFOR when presented"],
+  rep:{opcon:"COMSPACEFOR (S4S)",adcon:"Mission Delta 3 / CFC, with specified ADCON to S4S as directed"},sup:["Combat crews drawn from Mission Delta 3 squadrons"],sq:["sq4ews","sq5ews","sq16ews"],src:["wdel","bd","spfmd11"],verify:["Which squadrons' crews are presented.","The list of combat deltas presented to S4S is not published in one public source."]},
+ cdel4:{abbr:"CDEL 4",title:"Combat Delta 4 units",rank:"O-6",kind:"cdel",parent:"md4",
+  sum:"Strategic and theater missile warning for the U.S. and partners.",mission:"Combat formations presented from Mission Delta 4 for missile warning and tracking.",
+  resp:["Strategic and theater missile warning","Missile tracking and tipping and cueing to missile defense"],auth:["Under OPCON of COMSPACEFOR when presented"],
+  rep:{opcon:"COMSPACEFOR (S4S)",adcon:"Mission Delta 4 / CFC, with specified ADCON to S4S as directed"},sup:["Combat crews drawn from Mission Delta 4 squadrons"],sq:["sq2sws","sq5sws","sq6sws","sq7sws","sq10sws","sq11sws","sq12sws","sq13sws"],src:["wdel","bd","spfmd11"],verify:["Which squadrons' crews are presented.","The list of combat deltas presented to S4S is not published in one public source."]},
+ cdel5:{abbr:"CDEL 5 (C2)",title:"Combat Delta 5 (command and control)",rank:"O-6",kind:"cdel",parent:"del5",
+  sum:"Command and control of space forces; most CSpOC personnel.",
+  mission:"When presented, forms the Space Force core of the Combined Space Operations Center. S4SMD-DEL5 describes it as permanently presented to USSPACECOM as a C2 element.",
+  resp:["Provide the Space Force core of the CSpOC","Plan and execute operations in support of campaign plans","Identify operational priorities and intelligence requirements","Support other S4S centers, USSPACECOM components, and exercises"],
+  auth:["Delegated command authorities over assigned and attached forces","TACON of assigned and attached Space Force forces, as delegated"],
+  rep:{opcon:"COMSPACEFOR / CJFSCC (S4S)",adcon:"Space Delta 5 (assigned to S4S)"},sup:["CSpOC divisions and combat crews"],sq:["dv5cod","dv5sp","dv5isr","dv5sat"],src:["del5md","wdel"],
+  verify:["S4SMD-DEL5 names a “SMTF 1” (likely a Space Mission Task Force); its full name and role were not found in public sources."]},
+ cdel6:{abbr:"CDEL 6",title:"Combat Delta 6 units",rank:"O-6",kind:"cdel",parent:"del6",
+  sum:"Assured space access and defensive cyberspace capabilities.",mission:"Combat formations presented from Space Delta 6 for satellite control network and defensive cyber operations.",
+  resp:["Assured access to space (Satellite Control Network)","Defensive cyberspace operations for space systems"],auth:["Under OPCON of COMSPACEFOR when presented"],
+  rep:{opcon:"COMSPACEFOR (S4S)",adcon:"Space Delta 6 / CFC, with specified ADCON to S4S as directed"},sup:["Combat crews drawn from Space Delta 6 squadrons"],sq:["sq21sops","sq22sops","sq23sops","sq62cys","sq64cys","sq65cys","sq68cys","sq69cys"],src:["wdel","bd","spfmd11"],verify:["Which squadrons' crews are presented.","The list of combat deltas presented to S4S is not published in one public source."]},
+ cdel8:{abbr:"CDEL 8",title:"Combat Delta 8 units",rank:"O-6",kind:"cdel",parent:"del8",
+  sum:"Satellite communications (GPS alignment: verify).",mission:"Combat formations presented from Delta 8 for satellite communications operations.",
+  resp:["Satellite communications operations"],auth:["Under OPCON of COMSPACEFOR when presented"],
+  rep:{opcon:"COMSPACEFOR (S4S)",adcon:"Delta 8 / CFC, with specified ADCON to S4S as directed"},sup:["Combat crews drawn from Delta 8 squadrons"],sq:["sq4sops","sq10sops","sq53sops"],src:["wdel"],
+  verify:["The GPS squadron (2nd Space Operations Squadron) is not listed under Delta 8 in the sources reviewed; its current parent may be Mission Delta 31.","Whether GPS crews are presented through Combat Delta 8."]},
+ cdel9:{abbr:"CDEL 9",title:"Combat Delta 9 units",rank:"O-6",kind:"cdel",parent:"del9",
+  sum:"Orbital warfare: protect and defend, deter and defeat.",mission:"Combat formations presented from Space Delta 9 for orbital warfare.",
+  resp:["Protect and defend operations","Response options to deter and, when necessary, defeat orbital threats"],auth:["Under OPCON of COMSPACEFOR when presented"],
+  rep:{opcon:"COMSPACEFOR (S4S)",adcon:"Space Delta 9 / CFC, with specified ADCON to S4S as directed"},sup:["Combat crews drawn from Space Delta 9 squadrons"],sq:["sq1sops","sq3sops","sq5sops"],src:["wdel","bd","spfmd11"],verify:["Which squadrons' crews are presented.","The list of combat deltas presented to S4S is not published in one public source."]},
+ cdel15:{abbr:"CDEL 15 (C2)",title:"Combat Delta 15 (command and control)",rank:"O-6",kind:"cdel",parent:"del15",
+  sum:"Integrated space battle management, intelligence, and cyber to the NSDC.",mission:"Delta 15 presents command and control, intelligence, and cyber forces to the National Space Defense Center.",
+  resp:["Integrated space battle management","Intelligence and cyber support to the NSDC"],auth:["As delegated by the CJFSCC"],
+  rep:{opcon:"COMSPACEFOR / CJFSCC (S4S)",adcon:"Space Delta 15 (assigned to S4S)"},sup:["Delta 15 squadrons"],sq:["sq15cacs","sq15isrs","sq15cys"],src:["wdel","asf"],verify:["Combat delta designation and internal command relationships."]},
+
+ /* ADCON chain */
+ secaf:{abbr:"SECAF",title:"Secretary of the Air Force",rank:"Civilian",kind:"context",
+  sum:"Head of the Department of the Air Force, which includes the Space Force.",
+  mission:"Responsible for organizing, training, equipping, administering, and supporting the Air Force and Space Force.",
+  resp:["Service administration and support of Space Force forces"],auth:["Source of Space Force ADCON"],
+  rep:{opcon:"—",adcon:"Secretary of War"},sup:["Chief of Space Operations","Chief of Staff of the Air Force"],src:["spfi","spfmd11"]},
+ cso:{abbr:"CSO",title:"Chief of Space Operations",rank:"O-10",kind:"key",
+  sum:"Senior uniformed Space Force officer; heads the Space Force for the Secretary of the Air Force.",
+  location:"The Pentagon, Arlington, VA",
+  mission:"Leads the Space Force and is responsible to the Secretary of the Air Force for organizing, training, and equipping Space Force forces. Member of the Joint Chiefs of Staff. Not in the operational chain.",
+  resp:["Organize, train, and equip Space Force forces","Direct field commands, including component field commands","Present forces to combatant commanders"],
+  auth:["Service authority over the Space Force, exercised for the Secretary of the Air Force","No operational control of forces assigned to combatant commands"],
+  rep:{opcon:"Not in the operational chain",adcon:"Secretary of the Air Force"},
+  sup:["Field commands (for example CFC)","Component field commands (for example S4S)","The Space Staff (headquarters)"],src:["spfmd11","spfi"]},
+ cfcN:{abbr:"CFC",title:"Combat Forces Command",rank:V,kind:"key",
+  sum:"Field command that generates and presents combat-ready forces.",
+  location:"Peterson SFB, CO",
+  mission:"Generates and presents combat-ready intelligence, cyber, space, and combat support forces. Formerly Space Operations Command (SpOC); redesignated CFC in Nov 2025.",
+  resp:["Organize, train, equip, and present Space Force operational forces","Prepare deltas to be presented, mostly to S4S, and to other component field commands"],
+  auth:["ADCON of its assigned deltas and squadrons","Does not employ forces; it is a force generator"],
+  rep:{opcon:"Not in the operational chain (force generator)",adcon:"Chief of Space Operations"},
+  sup:["Mission Deltas 2, 3, 4 and 31; Space Deltas 6, 7, 8 and 9","Space Base Deltas 1, 2 and 41"],src:["cfc","wcfc","asf","bd"],
+  verify:["Commander's grade (SpOC was led by an O-9; not confirmed for CFC).","Delta 8 is listed as both “Mission Delta 8” and “Space Delta 8” in secondary sources."]},
+ del5:{abbr:"DEL 5",title:"Space Delta 5",rank:"O-6",kind:"delta",
+  sum:"Command and control delta; core of the CSpOC.",location:"Vandenberg SFB, CA",
+  mission:"Organizes, trains, and equips combat-ready Space Force command and control forces for USSPACECOM.",
+  resp:["Provide combat-ready C2 forces and the Space Force core of the CSpOC","Assess and report readiness; validate mission essential tasks at least annually","Administer personnel and coordinate installation support","Secure restricted facilities and manage government funds"],
+  auth:["ADCON over assigned Delta 5 personnel","Delegated TACON over assigned and attached Space Force forces"],
+  rep:{opcon:"COMSPACEFOR / CJFSCC (as CDEL 5)",adcon:"Commander, S4S"},
+  sup:["CSpOC divisions, combat squadrons and combat detachments"],sq:["dv5cod","dv5sp","dv5isr","dv5sat"],
+  staff:["dcc","dsel","dsstaff"],src:["del5md","wdel","asf"],
+  verify:["Squadron names under Delta 5 are not listed publicly; divisions are shown instead."]},
+ del15:{abbr:"DEL 15",title:"Space Delta 15",rank:"O-6",kind:"delta",
+  sum:"Presents C2, intelligence, and cyber forces to the NSDC.",location:"Schriever SFB, CO",size:"250 manpower authorizations planned (Nov 2024)",
+  mission:"Presents forces to the National Space Defense Center for space battle management.",
+  resp:["Provide C2, intelligence, surveillance and reconnaissance (ISR), and cyber forces for the NSDC"],
+  auth:["ADCON over assigned personnel"],rep:{opcon:"COMSPACEFOR / CJFSCC (as CDEL 15)",adcon:"Commander, S4S"},
+  sup:["15th Command and Control Squadron","15th ISR Squadron","15th Cyberspace Squadron"],sq:["sq15cacs","sq15isrs","sq15cys"],staff:["dcc","dsel","dsstaff"],src:["wdel","asf"],
+  verify:["Size figure is from a secondary source citing a USSF release."]},
+ md2:{abbr:"MD2",title:"Mission Delta 2",rank:"O-6",kind:"delta",sum:"Space domain awareness.",location:"Peterson SFB, CO",
+  mission:"Tracks and monitors human-made objects from low Earth orbit to deep space. Became a Mission Delta (Oct 2024), adding sustainment, cyber defense, and intelligence.",
+  resp:["Generate space domain awareness forces","Sustain assigned weapon systems"],auth:["ADCON over assigned squadrons"],
+  rep:{opcon:"Presented forces go under COMSPACEFOR (S4S)",adcon:"Commander, CFC"},sup:["Squadrons listed below"],sq:["sq15ssps","sq18sds","sq19sds","sq20sps","sq2sus"],staff:["dcc","dsel","dsstaff"],src:["wdel","wcfc"]},
+ md3:{abbr:"MD3",title:"Mission Delta 3",rank:"O-6",kind:"delta",sum:"Electromagnetic warfare.",location:"Peterson SFB, CO",
+  mission:"Presents operational, combat-ready electromagnetic warfare forces.",resp:["Generate electromagnetic warfare forces","Advanced training (3rd Combat Training Squadron)"],auth:["ADCON over assigned squadrons"],
+  rep:{opcon:"Presented forces go under COMSPACEFOR (S4S)",adcon:"Commander, CFC"},sup:["Squadrons listed below"],sq:["sq3cts","sq4ews","sq5ews","sq16ews"],staff:["dcc","dsel","dsstaff"],src:["wdel","wcfc"]},
+ md4:{abbr:"MD4",title:"Mission Delta 4",rank:"O-6",kind:"delta",sum:"Missile warning and tracking.",location:"Buckley SFB, CO",
+  mission:"Provides strategic and theater missile warning and tracking to the U.S. and international partners.",resp:["Generate missile warning forces","Tipping and cueing to missile defense forces","Battlespace awareness and technical intelligence"],auth:["ADCON over assigned squadrons"],
+  rep:{opcon:"Presented forces go under COMSPACEFOR (S4S)",adcon:"Commander, CFC"},sup:["Squadrons listed below"],sq:["sq2sws","sq3scs","sq5sws","sq6sws","sq7sws","sq10sws","sq11sws","sq12sws","sq13sws"],staff:["dcc","dsel","dsstaff"],src:["wdel","wcfc"]},
+ del6:{abbr:"DEL 6",title:"Space Delta 6",rank:"O-6",kind:"delta",sum:"Assured access to space and cyberspace defense.",location:"Schriever SFB, CO",
+  mission:"Assures access to space through the Satellite Control Network and provides defensive cyberspace capabilities for space mission systems.",resp:["Operate the Satellite Control Network","Defensive cyber operations for space systems"],auth:["ADCON over assigned squadrons"],
+  rep:{opcon:"Presented forces go under COMSPACEFOR (S4S)",adcon:"Commander, CFC"},sup:["Squadrons listed below"],sq:["sq21sops","sq22sops","sq23sops","sq62cys","sq64cys","sq65cys","sq68cys","sq69cys","sq645cys"],staff:["dcc","dsel","dsstaff"],src:["wdel","wcfc"]},
+ del7:{abbr:"DEL 7",title:"Space Delta 7",rank:"O-6",kind:"delta",sum:"Intelligence, surveillance, and reconnaissance.",location:"Peterson SFB, CO",
+  mission:"Intelligence, surveillance, and reconnaissance delta under CFC.",resp:["Generate ISR forces"],auth:["ADCON over assigned squadrons"],
+  rep:{opcon:"How Delta 7 forces are presented to S4S is not confirmed",adcon:"Commander, CFC"},sup:["Squadrons not researched for this build"],staff:["dcc","dsel","dsstaff"],src:["wcfc"],verify:["Squadrons and how Delta 7 intelligence forces are presented to S4S."]},
+ del8:{abbr:"DEL 8",title:"Delta 8",rank:"O-6",kind:"delta",sum:"Satellite communications.",location:"Schriever SFB, CO",
+  mission:"Military satellite communications across several constellations.",resp:["Generate satellite communications forces","Training and certification (8th Combat Training Squadron)"],auth:["ADCON over assigned squadrons"],
+  rep:{opcon:"Presented forces go under COMSPACEFOR (S4S)",adcon:"Commander, CFC"},sup:["Squadrons listed below"],sq:["sq8cts","sq4sops","sq10sops","sq53sops"],staff:["dcc","dsel","dsstaff"],src:["wdel","wcfc"],
+  verify:["Name: “Mission Delta 8” vs. “Space Delta 8”.","Whether GPS operations sit in Delta 8 or Mission Delta 31."]},
+ del9:{abbr:"DEL 9",title:"Space Delta 9",rank:"O-6",kind:"delta",sum:"Orbital warfare.",location:"Schriever SFB, CO",
+  mission:"Prepares, presents, and projects forces to conduct protect and defend operations and gives national decision authorities options to deter and defeat orbital threats.",resp:["Generate orbital warfare forces","Training and certification (9th Combat Training Squadron)"],auth:["ADCON over assigned squadrons"],
+  rep:{opcon:"Presented forces go under COMSPACEFOR (S4S)",adcon:"Commander, CFC"},sup:["Squadrons listed below"],sq:["sq1sops","sq3sops","sq5sops","sq9cts"],staff:["dcc","dsel","dsstaff"],src:["wdel","wcfc"]},
+ md31:{abbr:"MD31",title:"Mission Delta 31",rank:"O-6",kind:"delta",sum:"Navigation warfare.",location:"Peterson SFB, CO",
+  mission:"Navigation warfare delta under CFC.",resp:["Generate navigation warfare forces"],auth:["ADCON over assigned squadrons"],
+  rep:{opcon:"How MD31 forces are presented to S4S is not confirmed",adcon:"Commander, CFC"},sup:["Squadrons not researched for this build"],staff:["dcc","dsel","dsstaff"],src:["wcfc"],verify:["Squadrons and relationship to JNWC and Delta 8 GPS forces."]},
+ sbd:{abbr:"SBD 1 · 2 · 41",title:"Space Base Deltas 1, 2 and 41",rank:"O-6",kind:"context",sum:"Installation and mission support at Peterson, Buckley, and Schriever.",location:"Peterson SFB, Buckley SFB, Schriever SFB (CO)",
+  mission:"Provide base operating, mission, and medical support. Not presented as combat forces.",resp:["Installation support","Mission and medical support"],auth:["ADCON over assigned support units"],
+  rep:{opcon:"Not presented as combat forces",adcon:"Commander, CFC"},sup:["Support squadrons (not detailed)"],src:["wcfc"]},
+ otherc:{abbr:"C-FLDCOMs",title:"Other Space Force component field commands",rank:V,kind:"context",
+  sum:"Space Force components to other combatant commands (for example U.S. Space Forces–Central).",
+  mission:"Each combatant command with a Space Force component has its own COMSPACEFOR who, like S4S, reports to the CSO for administration and to that combatant commander for operations. Outside the scope of this version; a candidate for a future CENTCOM expansion.",
+  resp:["Same pattern as S4S for their combatant command"],auth:["ADCON for the SecAF; OPCON as delegated by their combatant commander"],
+  rep:{opcon:"Their combatant commander",adcon:"Chief of Space Operations"},sup:["Not covered"],src:["spfmd9","spfi"]}
+};
+
+/* ---------- Staff ---------- */
+var S = {
+ dcdr:{abbr:"DCDR",title:"Deputy Commander, USSPACECOM",rank:V,kind:"staff",sum:"Second in command of U.S. Space Command.",
+  resp:["Acts for the commander when absent","Directs headquarters activities as delegated"],rep:{opcon:"CDRUSSPACECOM",adcon:"Parent service"},sup:["As delegated"],src:[],verify:["Grade not confirmed for this build."]},
+ csel:{abbr:"CSEL",title:"Command Senior Enlisted Leader, USSPACECOM",rank:"E-9",kind:"staff",sum:"Senior enlisted advisor to the combatant commander.",
+  resp:["Advises the commander on enlisted joint force matters","Enlisted readiness, welfare, and professional development"],rep:{opcon:"CDRUSSPACECOM",adcon:"Parent service"},sup:["Enlisted leaders across the command (advisory)"],src:[]},
+ j0:{abbr:"J0",title:"Chief of Staff and Support",rank:V,kind:"staff",sum:"Runs the headquarters staff; includes the Joint Integrated Space Teams.",
+  resp:["Synchronizes headquarters staff work","Oversees Joint Integrated Space Teams"],rep:{opcon:"CDRUSSPACECOM",adcon:"Parent service"},sup:["Headquarters staff directorates"],src:[],verify:["“J0” is not a standard joint staff number, and this title was not found in public sources."]},
+ j1:{abbr:"J1",title:"Human Capital",rank:V,kind:"staff",sum:"Manpower and personnel.",resp:["Joint manpower and personnel management"],rep:{opcon:"J0 / CDRUSSPACECOM",adcon:"Parent service"},sup:["Directorate staff"],src:[],verify:["Directorate title not found in public sources."]},
+ j2:{abbr:"J2",title:"Intelligence",rank:V,kind:"staff",sum:"Intelligence for the command.",resp:["Intelligence support to planning and operations"],rep:{opcon:"J0 / CDRUSSPACECOM",adcon:"Parent service"},sup:["Directorate staff, including the Joint Intelligence Support Element"],src:[],verify:["Directorate title not found in public sources."]},
+ j3:{abbr:"J3",title:"Global Operations",rank:V,kind:"staff",sum:"Current operations.",resp:["Directs and monitors current operations"],rep:{opcon:"J0 / CDRUSSPACECOM",adcon:"Parent service"},sup:["Directorate staff"],src:[],verify:["Directorate title not found in public sources."]},
+ j4:{abbr:"J4",title:"Logistics",rank:V,kind:"staff",sum:"Logistics.",resp:["Logistics planning and support"],rep:{opcon:"J0 / CDRUSSPACECOM",adcon:"Parent service"},sup:["Directorate staff"],src:[],verify:["Directorate title not found in public sources."]},
+ j5:{abbr:"J5",title:"Strategy, Plans and Policy",rank:V,kind:"staff",sum:"Plans and policy.",resp:["Campaign and contingency planning","Strategy and policy"],rep:{opcon:"J0 / CDRUSSPACECOM",adcon:"Parent service"},sup:["Directorate staff"],src:[],verify:["Directorate title not found in public sources."]},
+ j6:{abbr:"J6",title:"Digital Superiority",rank:V,kind:"staff",sum:"Command, control, communications, and cyber.",resp:["Communications and digital systems"],rep:{opcon:"J0 / CDRUSSPACECOM",adcon:"Parent service"},sup:["Directorate staff"],src:[],verify:["Directorate title not found in public sources."]},
+ j7:{abbr:"J7",title:"Development and Training",rank:V,kind:"staff",sum:"Joint training and exercises.",resp:["Joint training, exercises, and force development"],rep:{opcon:"J0 / CDRUSSPACECOM",adcon:"Parent service"},sup:["Directorate staff"],src:[],verify:["Directorate title not found in public sources."]},
+ j8:{abbr:"J8",title:"Capabilities and Resources",rank:V,kind:"staff",sum:"Requirements and resources.",resp:["Capability requirements and resourcing"],rep:{opcon:"J0 / CDRUSSPACECOM",adcon:"Parent service"},sup:["Directorate staff"],src:[],verify:["Directorate title not found in public sources."]},
+ spec:{abbr:"Special staff",title:"Special staff (legal, chaplain, public affairs, safety, inspector general)",rank:V,kind:"staff",sum:"Advisors who report directly to the commander.",
+  resp:["Staff Judge Advocate (SJA): legal advice","Chaplain: religious support and advice","Public Affairs (PA): public communication","Safety: mishap prevention","Inspector General (IG): inspections and complaints"],rep:{opcon:"Commander",adcon:"Parent service"},sup:["Their own offices"],src:["jp1"],verify:["Which special staff offices exist at USSPACECOM headquarters was not confirmed in public sources."]},
+
+ dcomspacefor:{abbr:"DCOMSPACEFOR",title:"Deputy Commander, Space Forces",rank:"O-7",kind:"staff",sum:"Approves actions, orders, and plans as the commander authorizes.",
+  resp:["Approves actions, orders, and plans when authorized","Space Force liaison officers to other components align under this position"],rep:{opcon:"COMSPACEFOR",adcon:"COMSPACEFOR"},sup:["Liaison officers to other components"],src:["spfi","s4spage"]},
+ dcjfscc:{abbr:"Deputy CJFSCC",title:"Deputy Combined Joint Force Space Component Commander",rank:"O-7",kind:"staff",sum:"Deputy for the joint/combined (CJFSCC) role.",
+  resp:["Assists the CJFSCC in conducting joint space operations"],rep:{opcon:"CJFSCC",adcon:"Parent service"},sup:["As delegated"],src:["s4spage"],verify:["How this deputy's duties divide from the DCOMSPACEFOR's is not described publicly."]},
+ cos:{abbr:"CoS",title:"Chief of Staff",rank:V,kind:"staff",sum:"Coordinates and directs the SPACEFOR staff.",
+  resp:["Coordinates and directs staff activities","May be combined with the deputy or another staff position"],rep:{opcon:"COMSPACEFOR",adcon:"COMSPACEFOR"},sup:["S1–S9 directorates"],src:["spfi"],verify:["Grade not specified in SPFI 13-105."]},
+ sel:{abbr:"CSEL",title:"Command Senior Enlisted Leader",rank:"E-9",kind:"staff",sum:"Principal advisor on the health, welfare, morale, and progress of personnel.",
+  resp:["Advises the commander on personnel health, welfare, morale, and progress, including families"],rep:{opcon:"COMSPACEFOR",adcon:"COMSPACEFOR"},sup:["Enlisted leaders (advisory)"],src:["spfi","s4spage"]},
+ s1:{abbr:"S1",title:"Manpower, Personnel and Services",rank:V,kind:"staff",sum:"Manpower and personnel matters.",resp:["Principal staff assistant for manpower and personnel"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["Directorate staff"],src:["spfi"]},
+ s2:{abbr:"S2",title:"Intelligence, Surveillance and Reconnaissance (ISR)",rank:V,kind:"staff",sum:"Senior intelligence officer.",resp:["Intelligence support to the component"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["Directorate staff"],src:["spfi"]},
+ s3:{abbr:"S3",title:"Operations",rank:V,kind:"staff",sum:"Directs assigned and attached space forces; dual-hatted as Operations Center–Space Director.",resp:["Principal staff assistant for directing assigned and attached forces","Directs the Operations Center for Space (OC-Sp), the commander's C2 center"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["OC-Sp operations crews"],src:["spfi"]},
+ s4:{abbr:"S4",title:"Mission Support and Logistics",rank:V,kind:"staff",sum:"Mission support and logistics.",resp:["Principal staff assistant for mission support and logistics"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["Directorate staff"],src:["spfi"]},
+ s5:{abbr:"S5",title:"Plans and Requirements",rank:V,kind:"staff",sum:"Component planning to support the combatant commander's plans.",resp:["Component planning in support of CCDR plans"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["Directorate staff"],src:["spfi"]},
+ s6:{abbr:"S6",title:"Cyber, Electromagnetic Spectrum Operations and Warfighting Communications",rank:V,kind:"staff",sum:"Communications, cyber, and electromagnetic spectrum operations (EMSO).",resp:["Communications, cyber, and EMSO"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["Directorate staff"],src:["spfi"]},
+ s7:{abbr:"S7",title:"Force Development",rank:V,kind:"staff",sum:"Readiness through training and exercises.",resp:["Training and exercises for readiness"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["Directorate staff"],src:["spfi"]},
+ s8:{abbr:"S8",title:"Strategy and Programs",rank:V,kind:"staff",sum:"Financial management and resource advice.",resp:["Financial management and resourcing advice"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["Directorate staff"],src:["spfi"]},
+ s9:{abbr:"S9",title:"Analysis and Assessments",rank:V,kind:"staff",sum:"Lessons learned and assessments.",resp:["Lessons learned, measures of performance and effectiveness, assessments"],rep:{opcon:"Chief of Staff",adcon:"COMSPACEFOR"},sup:["Directorate staff"],src:["spfi"]},
+ wio:{abbr:"WIO",title:"Warfighting Integration Officer",rank:V,kind:"staff",sum:"Direct feedback link to Space Systems Command.",resp:["Brings space capabilities into wargames and exercises","Coordinates capability development with other Space Force components"],rep:{opcon:"COMSPACEFOR",adcon:"COMSPACEFOR"},sup:["—"],src:["spfi"]},
+ sspec:{abbr:"Special staff",title:"Special staff (legal, chaplain, public affairs, safety, inspector general)",rank:V,kind:"staff",sum:"Provided through support agreements with the Air Force component.",
+  resp:["SJA: legal advice","Chaplain: religious support","Public Affairs: public communication","Safety: mishap prevention","Inspector General: inspections and complaints","Per SPFI 13-105, these functions are set by support agreements between the COMSPACEFOR and the Commander, Air Force Forces (COMAFFOR)"],
+  rep:{opcon:"COMSPACEFOR",adcon:"Per support agreement"},sup:["Their own offices"],src:["spfi"],verify:["Which special staff offices S4S actually has in-house versus by support agreement."]},
+
+ dcc:{abbr:"Delta CC",title:"Delta Commander",rank:"O-6",kind:"staff",sum:"Commands the delta; may be dual-hatted (for example Delta 5 commander is CSpOC Director).",
+  resp:["Readiness, training, and administration of the delta","Executes tasks from the parent command"],rep:{opcon:"COMSPACEFOR when presented",adcon:"Parent field command"},sup:["Squadron commanders","Delta S-staff"],src:["del5md"]},
+ dsel:{abbr:"Delta SEL",title:"Delta Senior Enlisted Leader",rank:"E-9",kind:"staff",sum:"Senior enlisted advisor to the delta commander.",resp:["Enlisted readiness, welfare, and development"],rep:{opcon:"Delta Commander",adcon:"Delta Commander"},sup:["Squadron senior enlisted leaders (advisory)"],src:["del5md"],verify:["Grade (E-9) is typical, not confirmed for every delta."]},
+ dsstaff:{abbr:"Delta S-staff",title:"Delta S-staff directorates",rank:V,kind:"staff",sum:"Delta-level staff using the S-staff convention.",resp:["S-staff directorates support the delta commander (S4SMD-DEL5 states “multiple S-Staff Directorates”)"],rep:{opcon:"Delta Commander",adcon:"Delta Commander"},sup:["Directorate staff"],src:["del5md"],verify:["Which S-numbers each delta uses."]}
+};
+
+/* ---------- Squadrons / sub-units ---------- */
+function sq(abbr,title,mission,loc,parent){return {abbr:abbr,title:title,rank:"O-5",kind:"squadron",sum:mission,location:loc,mission:mission,
+  resp:[mission],auth:["ADCON through the parent delta","Combat crews presented to S4S fall under COMSPACEFOR OPCON (combat squadron model)"],
+  rep:{opcon:"COMSPACEFOR (S4S) when its combat crews are presented",adcon:parent},sup:["Squadron crews and flights"],src:["wdel","bd"],
+  verify:["Squadron commander grade (O-5) and senior enlisted grade are typical, not confirmed per unit."]};}
+var Q = {
+ sq15ssps:sq("15 SPSS","15th Space Surveillance Squadron","Space surveillance research and development","Maui, HI","Mission Delta 2"),
+ sq18sds:sq("18 SDS","18th Space Defense Squadron","Space domain awareness","Vandenberg SFB, CA","Mission Delta 2"),
+ sq19sds:sq("19 SDS","19th Space Defense Squadron","Space domain awareness for government, civil, and international users","NSF Dahlgren, VA","Mission Delta 2"),
+ sq20sps:sq("20 SPSS","20th Space Surveillance Squadron","Space domain awareness","Eglin AFB, FL","Mission Delta 2"),
+ sq2sus:sq("2 SUS","2nd Sustainment Squadron","Sustainment","Peterson SFB, CO","Mission Delta 2"),
+ sq3cts:sq("3 CTS","3rd Combat Training Squadron","Advanced training for the delta",V,"Mission Delta 3"),
+ sq4ews:sq("4 EWS","4th Electromagnetic Warfare Squadron","Electromagnetic warfare",V,"Mission Delta 3"),
+ sq5ews:sq("5 EWS","5th Electromagnetic Warfare Squadron","Electromagnetic warfare",V,"Mission Delta 3"),
+ sq16ews:sq("16 EWS","16th Electromagnetic Warfare Squadron","Electromagnetic warfare",V,"Mission Delta 3"),
+ sq2sws:sq("2 SWS","2nd Space Warning Squadron","Missile warning, missile defense, battlespace awareness, technical intelligence","Buckley SFB, CO","Mission Delta 4"),
+ sq3scs:sq("3 SCS","3rd Satellite Communications Squadron","Military communications","Buckley SFB, CO","Mission Delta 4"),
+ sq5sws:sq("5 SWS","5th Space Warning Squadron","Missile warning and space domain awareness (Joint Tactical Ground Station)","Buckley SFB, CO","Mission Delta 4"),
+ sq6sws:sq("6 SWS","6th Space Warning Squadron","Missile warning and space domain awareness","Cape Cod SFS, MA","Mission Delta 4"),
+ sq7sws:sq("7 SWS","7th Space Warning Squadron","Missile defense and space domain awareness","Beale AFB, CA","Mission Delta 4"),
+ sq10sws:sq("10 SWS","10th Space Warning Squadron","Missile warning and space domain awareness","Cavalier SFS, ND","Mission Delta 4"),
+ sq11sws:sq("11 SWS","11th Space Warning Squadron","Missile warning, missile defense, battlespace awareness, technical intelligence","Buckley SFB, CO","Mission Delta 4"),
+ sq12sws:sq("12 SWS","12th Space Warning Squadron","Missile warning and space domain awareness","Pituffik Space Base, Greenland","Mission Delta 4"),
+ sq13sws:sq("13 SWS","13th Space Warning Squadron","Missile warning, missile defense, and space domain awareness","Clear SFS, AK","Mission Delta 4"),
+ sq21sops:sq("21 SOPS","21st Space Operations Squadron","Satellite Control Network operations and Western Range launch support","Vandenberg SFB, CA","Space Delta 6"),
+ sq22sops:sq("22 SOPS","22nd Space Operations Squadron","Satellite Control Network command and control","Schriever SFB, CO","Space Delta 6"),
+ sq23sops:sq("23 SOPS","23rd Space Operations Squadron","Satellite Control Network operations and Eastern Range launch support","New Boston SFS, NH","Space Delta 6"),
+ sq62cys:sq("62 CYS","62nd Cyberspace Squadron","Defensive cyber operations","Peterson SFB, CO","Space Delta 6"),
+ sq64cys:sq("64 CYS","64th Cyberspace Squadron","Defensive cyber operations supporting Mission Delta 4","Buckley SFB, CO","Space Delta 6"),
+ sq65cys:sq("65 CYS","65th Cyberspace Squadron","Defensive cyber operations","Vandenberg SFB, CA","Space Delta 6"),
+ sq68cys:sq("68 CYS","68th Cyberspace Squadron","Defensive cyber operations supporting Delta 8","Schriever SFB, CO","Space Delta 6"),
+ sq69cys:sq("69 CYS","69th Cyberspace Squadron","Defensive cyber operations supporting Delta 9","Schriever SFB, CO","Space Delta 6"),
+ sq645cys:sq("645 CYS","645th Cyberspace Squadron","Defensive cyber operations for the Eastern Range","Patrick SFB, FL","Space Delta 6"),
+ sq8cts:sq("8 CTS","8th Combat Training Squadron","Training, certification, and tactics development","Schriever SFB, CO","Delta 8"),
+ sq4sops:sq("4 SOPS","4th Space Operations Squadron","Satellite communications","Schriever SFB, CO","Delta 8"),
+ sq10sops:sq("10 SOPS","10th Space Operations Squadron","Satellite communications","Point Mugu, CA","Delta 8"),
+ sq53sops:sq("53 SOPS","53rd Space Operations Squadron","Satellite communications","Schriever SFB, CO","Delta 8"),
+ sq1sops:sq("1 SOPS","1st Space Operations Squadron","Space domain awareness","Schriever SFB, CO","Space Delta 9"),
+ sq3sops:sq("3 SOPS","3rd Space Operations Squadron","Space defense","Schriever SFB, CO","Space Delta 9"),
+ sq5sops:sq("5 SOPS","5th Space Operations Squadron","Technology demonstration","Joint Base Anacostia-Bolling, DC","Space Delta 9"),
+ sq9cts:sq("9 CTS","9th Combat Training Squadron","Training, certification, and tactics development","Schriever SFB, CO","Space Delta 9"),
+ sq15cacs:sq("15 CACS","15th Command and Control Squadron","Command and control","Schriever SFB, CO","Space Delta 15"),
+ sq15isrs:sq("15 ISRS","15th Intelligence, Surveillance and Reconnaissance Squadron","Intelligence, surveillance, and reconnaissance","Schriever SFB, CO","Space Delta 15"),
+ sq15cys:sq("15 CYS","15th Cyberspace Squadron","Cyberspace operations","Schriever SFB, CO","Space Delta 15"),
+ dv5cod:sq("COD","Combat Operations Division (CSpOC)","Space forces command and control","Vandenberg SFB, CA","Space Delta 5"),
+ dv5sp:sq("SPD","Strategy and Plans Division (CSpOC)","Strategy and plans development","Vandenberg SFB, CA","Space Delta 5"),
+ dv5isr:sq("ISRD","ISR Division (CSpOC)","Intelligence, surveillance, and reconnaissance","Vandenberg SFB, CA","Space Delta 5"),
+ dv5sat:sq("SATCOM IOD","SATCOM Integrated Operations Division (CSpOC)","Satellite communications integration","Vandenberg SFB, CA","Space Delta 5")
+};
+["dv5cod","dv5sp","dv5isr","dv5sat"].forEach(function(k){Q[k].rank=V;Q[k].kind="division";Q[k].verify=["These are CSpOC divisions, not squadrons. Division chief grades are not published.","Divisions are from a secondary source; S4SMD-DEL5 refers to unnamed combat squadrons and detachments."];});
+function un(abbr,title,mission,loc,parent,rank,extra){var u=sq(abbr,title,mission,loc,parent);u.rank=rank||V;u.kind="unit";
+  u.auth=["ADCON through "+parent+" and its service"];u.rep={opcon:"Service component, as delegated",adcon:parent};u.src=["wsmdc"];u.verify=["Secondary source; grade and current structure not confirmed."];if(extra)u.resp=extra;return u;}
+Q.bn1sp=un("1st SPACE BN","1st Space Battalion","Space support and space control (active Army)","Fort Carson, CO","1st Space Brigade","O-5",["2nd Space Company (space control)","4th and 18th Space Companies (Army Space Support Teams)","24th Missile Defense Service Battery"]);
+Q.bn2sp=un("2nd SPACE BN","2nd Space Battalion (Army Reserve)","Space support and space control (Army Reserve)","Fort Carson, CO","1st Space Brigade","O-5",["3rd, 5th and 6th Space Companies (Army Space Support Teams)","8th and 23rd Space Companies (space control)"]);
+Q.bn117sp=un("117th SPACE BN","117th Space Battalion (Colorado Army National Guard)","Army Space Support Teams (217th and 1158th Space Companies)","Colorado","Colorado Army National Guard (training and readiness oversight by 1st Space Brigade)","O-5");
+Q.tpy2=un("AN/TPY-2 BTRYS","Forward-based missile defense radar batteries (10th\u201314th)","AN/TPY-2 radar batteries in Japan, Turkey, Saudi Arabia, and Israel","Overseas","1st Space Brigade",V);
+Q.tpy2.verify=["Operational control of forward-based radars likely sits with the geographic combatant command; not confirmed."];
+Q.bn49md=un("49th MD BN","49th Missile Defense Battalion (GMD)","Ground-Based Interceptor operations and site security","Fort Greely, AK","100th Missile Defense Brigade","O-5");
+Q.mdbdet1=un("DET 1","100th MDB Detachment 1","Ground-based midcourse defense support","Vandenberg SFB, CA","100th Missile Defense Brigade",V);
+Q.mdbdet2=un("DET 2","100th MDB Detachment 2","Ground-based midcourse defense support","Fort Drum, NY","100th Missile Defense Brigade",V);
+var SHORT={"s1": "Personnel", "s2": "ISR", "s3": "Operations", "s4": "Mission Support & Logistics", "s5": "Plans & Requirements", "s6": "Cyber, EMSO & Comms", "s7": "Force Development", "s8": "Strategy & Programs", "s9": "Analysis & Assessments", "wio": "Warfighting Integration", "dcomspacefor": "Deputy Commander", "dcjfscc": "Deputy for joint/combined ops", "cos": "Chief of Staff", "sel": "Command Senior Enlisted Leader", "sspec": "SJA \u00b7 Chaplain \u00b7 PA \u00b7 Safety \u00b7 IG", "spec": "SJA \u00b7 Chaplain \u00b7 PA \u00b7 Safety \u00b7 IG", "dcdr": "Deputy Commander", "csel": "Command Senior Enlisted Leader", "j0": "Chief of Staff & Support", "j6": "Digital Superiority"};Object.keys(SHORT).forEach(function(k){S[k].short=SHORT[k];});
+var ALL = Object.assign({},N,S,Q);
+
+/* ---------- Views ---------- */
+var VIEWS = {
+ opcon:{
+  note:"<b>Operational chain.</b> The Commander, USSPACECOM holds <b>combatant command (COCOM)</b> over the forces assigned and presented to U.S. Space Command, and delegates operational control (OPCON) of each service's forces to its component commander. COMSPACEFOR, also the CJFSCC, employs presented Space Force combat forces through five operations centers.",
+  tiers:[
+   {name:"Combatant command",groups:[{solo:true,nodes:["cdr"]}]},
+   {band:"<b>COCOM</b> held by CDRUSSPACECOM over all forces assigned and presented to USSPACECOM · <b>OPCON</b> delegated to components"},
+   {name:"Components",groups:[
+     {label:"Space Force service component (dual-hatted as CJFSCC)",wide:true,nodes:["s4s"]},
+     {label:"Other service components",nodes:["army","marines","navy","af"]},
+     {label:"Functional component",nodes:["jfcc"]}]},
+   {band:"<b>OPCON</b> · COMSPACEFOR / CJFSCC directs operations through five centers"},
+   {name:"Space Force line: CJFSCC operations centers",groups:[{solo:true,nodes:["cspoc","nsdc","mwc","jopc","jnwc"]}]},
+   {band:"<b>OPCON</b> of presented forces to COMSPACEFOR · TACON delegated as directed"},
+   {name:"Space Force line: presented combat forces (combat deltas, squadrons, crews)",groups:[
+     {label:"Command and control deltas (assigned to S4S)",nodes:["cdel5","cdel15"]},
+     {label:"Combat formations presented from CFC deltas",nodes:["cdel2","cdel3","cdel4","cdel6","cdel8","cdel9"]}]},
+   {band:"<b>OPCON</b> as delegated to each service component · units below belong to that service"},
+   {name:"Other service components: their units",groups:[
+     {label:"Army (USASMDC)",nodes:["asb1","mdb100"]},
+     {label:"Marine Corps (MARFORSPACE)",nodes:["mcic","fmfspace"]},
+     {label:"Navy (NAVSPACECOM)",nodes:["fcc"]},
+     {label:"Air Force (AFSPACE)",nodes:["det3"]}]}
+  ]},
+ adcon:{
+  note:"<b>Administrative chain.</b> The Secretary of the Air Force administers the Space Force through the Chief of Space Operations. The CSO holds ADCON of both COMSPACEFOR (S4S) and Combat Forces Command. The Commander, USSPACECOM is not in this chain, and other services' forces keep ADCON in their own departments. S4S also holds <b>specified ADCON</b> over combat formations attached to it from CFC, as directed.",
+  tiers:[
+   {name:"Department of the Air Force",groups:[{solo:true,nodes:["secaf"]}]},
+   {band:"<b>ADCON</b> · service administration and support"},
+   {name:"Service headquarters",groups:[{solo:true,nodes:["cso"]}]},
+   {band:"<b>ADCON</b> · CSO to field commands and component field commands"},
+   {name:"Field commands",groups:[
+     {label:"Component field command (employs forces for USSPACECOM)",wide:true,nodes:["s4s"]},
+     {label:"Field command (generates forces)",nodes:["cfcN"]},
+     {label:"Outside this chain (context)",nodes:["otherc","othersvc"]}]},
+   {band:"<b>ADCON</b> · field command to deltas · S4S holds specified ADCON of attached CFC formations"},
+   {name:"Deltas and their squadrons",groups:[
+     {label:"Assigned to S4S",nodes:["del5","del15"]},
+     {label:"Assigned to CFC",nodes:["md2","md3","md4","del6","del7","del8","del9","md31","sbd"]}]}
+  ]}
+};
+
+var GLOSS = [
+ ["Combatant command (command authority) (COCOM)","Nontransferable authority of a combatant commander over assigned forces, set in law (10 U.S.C. §164). Covers organizing and employing forces, assigning tasks, and directing all aspects of military operations, joint training, and logistics needed for the mission."],
+ ["Operational control (OPCON)","The authority to perform those functions of command over subordinate forces involving organizing and employing forces, assigning tasks, designating objectives, and giving direction needed to accomplish the mission. Delegated by the combatant commander."],
+ ["Tactical control (TACON)","Authority limited to the detailed direction and control of movements or maneuvers within an operational area to accomplish assigned missions."],
+ ["Administrative control (ADCON)","Direction or exercise of authority over subordinate or other organizations in respect to administration and support. For the Space Force it flows from the Secretary of the Air Force through the CSO."],
+ ["Specified ADCON","A defined portion of ADCON given to a commander who does not hold full ADCON. SPFMD 11 gives S4S “specified administrative control of combat formations allocated from other field commands, as directed.”"],
+ ["Commander, Space Forces (COMSPACEFOR)","The single Space Force commander of a Space Force service component assigned or attached to a joint force commander (SPFI 13-105). At USSPACECOM this is the S4S commander."],
+ ["Component field command (C-FLDCOM)","A major subdivision of the Space Force assigned to serve as a unit presented to a combatant commander, serving as the Space Force service component (SPFI 13-105)."],
+ ["Field command (FLDCOM)","A major subdivision of the Space Force assigned a key part of its mission; reports directly to the CSO (SPFI 13-105). Combat Forces Command is a field command."],
+ ["Combined Joint Force Space Component Commander (CJFSCC)","Functional component authorities conferred by CDRUSSPACECOM on the S4S commander to conduct joint and combined space operations."],
+ ["Delta / Mission Delta","Space Force unit between field command and squadron, roughly a wing or group equivalent. A Mission Delta also holds its own sustainment, cyber defense, and intelligence forces."],
+ ["Combat delta / combat squadron","Portions of existing units (crews, planners, intelligence, ground systems) presented to a component for employment, while the rest of the unit stays home to train and test."],
+ ["Operations Center for Space (OC-Sp)","The COMSPACEFOR's command and control center, directed by the S3 at component field commands (SPFI 13-105)."]
+];
+
+/* ---------- Render ---------- */
+var chart=document.getElementById("chart"), panel=document.getElementById("panel"), view="opcon", current=null;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function rankChip(r){return r===V?'<span class="vbadge">Rank: verify</span>':'<span class="rank">'+esc(r)+'</span>';}
+function hasVerify(d){return d.verify&&d.verify.length;}
+
+function nodeHTML(id){
+  var d=N[id]; var cls="node"+(d.kind==="key"?" key":"")+(d.kind==="context"?" context":"");
+  var h='<button type="button" class="'+cls+'" data-id="'+id+'" id="n-'+id+'"><span class="node-top"><span class="abbr">'+esc(d.abbr)+'</span>'+rankChip(d.rank)+'</span>'+
+    '<span class="node-title">'+esc(d.title)+'</span>';
+  if(d.hat) h+='<span class="hatnote">'+esc(d.hat)+'</span>';
+  h+='<span class="node-sum">'+esc(d.sum)+'</span>';
+  var foot=[]; if(d.location&&d.location!==V) foot.push(esc(d.location)); if(hasVerify(d)) foot.push('<span class="vbadge">Verify</span>');
+  if(foot.length) h+='<span class="node-foot">'+foot.join(' · ')+'</span>';
+  h+='</button>';
+  var extra='';
+  if(d.staffGroups){extra+='<div class="staffblock" aria-label="Staff">'+d.staffGroups.map(function(g){return '<div class="sb-row"><div class="sb-label">'+esc(g[0])+'</div><div class="sb-grid'+(g[0]==="Directorates"?' dir':'')+'">'+g[1].map(function(k){var x=S[k];return '<button type="button" class="sb-tile" data-id="'+k+'"><b>'+esc(x.abbr)+'</b><span>'+esc(x.short||x.title)+'</span></button>';}).join('')+'</div></div>';}).join('')+'</div>';}
+  if(d.sq&&d.sq.length){extra+='<div class="chips" aria-label="Subordinate units">'+d.sq.map(function(s){return '<button type="button" class="chip" data-id="'+s+'">'+esc(Q[s].abbr)+'</button>';}).join('')+'</div>';}
+  return extra?'<div class="nodewrap">'+h+extra+'</div>':h;
+}
+
+function render(){
+  var v=VIEWS[view]; document.body.classList.toggle("view-opcon",view==="opcon"); document.body.classList.toggle("view-adcon",view==="adcon");
+  document.getElementById("viewnote").innerHTML=v.note;
+  chart.innerHTML=v.tiers.map(function(t){
+    if(t.band) return '<div class="band">'+t.band+'</div>';
+    return '<div class="tier"><div class="tier-head"><span class="tier-name">'+esc(t.name)+'</span></div><div class="groups">'+
+      t.groups.map(function(g){return '<div class="group'+(g.solo?' solo':'')+(g.wide?' wide':'')+'">'+(g.label?'<div class="group-label">'+esc(g.label)+'</div>':'')+
+        '<div class="group-nodes">'+g.nodes.map(nodeHTML).join('')+'</div></div>';}).join('')+'</div></div>';
+  }).join('');
+  ["opcon","adcon"].forEach(function(k){document.getElementById("btn-"+k).setAttribute("aria-pressed",String(k===view));});
+  if(current) mark(current);
+  if(current) show(current,true);
+}
+function mark(id){chart.querySelectorAll('[aria-current]').forEach(function(e){e.removeAttribute('aria-current');});
+  var el=chart.querySelector('.node[data-id="'+id+'"]'); if(el) el.setAttribute('aria-current','true');}
+
+function list(a){return '<ul>'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';}
+function show(id,quiet){
+  var d=ALL[id]; if(!d) return; current=id; mark(id);
+  var kindLabel={comp:"Component command",unit:"Component unit",key:"Command",context:"Context (outside the Space Force chain or out of scope)",center:"CJFSCC operations center",cdel:"Presented combat formation",delta:"Delta",staff:"Staff",squadron:"Squadron",division:"CSpOC division"}[d.kind]||"";
+  var opFirst=view==="opcon";
+  var relOp='<div class="op"><b>OPERATIONAL (OPCON) REPORTS TO</b>'+esc(d.rep.opcon)+'</div>';
+  var relAd='<div class="ad"><b>ADMINISTRATIVE (ADCON) REPORTS TO</b>'+esc(d.rep.adcon)+'</div>';
+  var h='<button type="button" class="close" id="panel-close">Close</button>';
+  h+='<div class="eyebrow">'+esc(kindLabel)+'</div><h2>'+esc(d.title)+'</h2><p class="lead">'+esc(d.sum)+'</p>';
+  h+='<dl class="facts"><dt>Abbreviation</dt><dd>'+esc(d.abbr)+'</dd><dt>Typical grade</dt><dd>'+(d.rank===V?'<span class="vbadge">Verify</span>':esc(d.rank))+'</dd>';
+  if(d.location) h+='<dt>Location</dt><dd>'+(d.location===V?'[Installation] <span class="vbadge">Verify</span>':esc(d.location))+'</dd>';
+  if(d.kind!=="staff") h+='<dt>Typical size</dt><dd>'+esc(d.size||"Not found in public sources reviewed")+'</dd>';
+  h+='</dl>';
+  if(d.mission) h+='<h4>Mission</h4><p>'+esc(d.mission)+'</p>';
+  h+='<h4>Key responsibilities</h4>'+list(d.resp||[]);
+  if(d.auth) h+='<h4>Command authorities</h4>'+list(d.auth);
+  h+='<h4>Reports to</h4><div class="rel">'+(opFirst?relOp+relAd:relAd+relOp)+'</div>';
+  h+='<h4>Supervises</h4>'+list(d.sup||[]);
+  var sg=d.staffGroups||(d.staff?[["Staff",d.staff]]:null);
+  if(sg){h+='<h4>Staff</h4>'+sg.map(function(g){return '<p class="src" style="margin:6px 0 4px">'+esc(g[0])+'</p><div class="chips">'+g[1].map(function(k){return '<button type="button" class="chip staff" data-id="'+k+'">'+esc(S[k].abbr)+' · '+esc(S[k].title)+'</button>';}).join('')+'</div>';}).join('');}
+  if(d.kids){h+='<h4>Subordinate commands and units</h4><div class="chips">'+d.kids.map(function(k){return '<button type="button" class="chip" data-id="'+k+'">'+esc(N[k].abbr)+' · '+esc(N[k].title)+'</button>';}).join('')+'</div>';}
+  if(d.sq){h+='<h4>Subordinate units</h4><div class="chips">'+d.sq.map(function(s){return '<button type="button" class="chip" data-id="'+s+'">'+esc(Q[s].abbr)+'</button>';}).join('')+'</div>';}
+  if(d.parent&&N[d.parent]){h+='<h4>Generated by</h4><p><button type="button" class="linkbtn" data-id="'+d.parent+'">'+esc(N[d.parent].title)+'</button> (see Administrative chain)</p>';}
+  if(hasVerify(d)) h+='<div class="verify"><h4>Not confirmed in public sources</h4>'+list(d.verify)+'</div>';
+  h+='<h4>Sources</h4><div class="src">'+(d.src||[]).map(function(s){var o=SOURCES[s];var n=Object.keys(SOURCES).indexOf(s)+1;return '['+n+'] '+(o.u?'<a href="'+o.u+'" target="_blank" rel="noopener">'+esc(o.t)+'</a>':esc(o.t));}).join('<br>')+'</div>';
+  panel.innerHTML=h; panel.classList.remove("idle"); panel.scrollTop=0;
+  var c=document.getElementById("panel-close"); if(c) c.addEventListener("click",function(){panel.classList.add("idle");});
+}
+
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-id]"); if(t){show(t.getAttribute("data-id")); return;}
+  var b=e.target.closest(".toggle button"); if(b){view=b.getAttribute("data-view"); try{localStorage.setItem("ussf-c2-view",view);}catch(err){} render();}
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape") panel.classList.add("idle");});
+
+document.getElementById("gloss").innerHTML=(function(){var half=Math.ceil(GLOSS.length/2);
+  function dl(a){return '<dl>'+a.map(function(g){return '<dt>'+esc(g[0])+'</dt><dd>'+esc(g[1])+'</dd>';}).join('')+'</dl>';}
+  return dl(GLOSS.slice(0,half))+dl(GLOSS.slice(half));})();
+document.getElementById("sources").innerHTML=Object.keys(SOURCES).map(function(k){var o=SOURCES[k];
+  return '<li><b>'+esc(o.t)+'</b>'+(o.u?'<br><a href="'+o.u+'" target="_blank" rel="noopener">'+esc(o.u)+'</a>':'')+'</li>';}).join('');
+
+try{var saved=localStorage.getItem("ussf-c2-view"); if(saved==="adcon"||saved==="opcon") view=saved;}catch(err){}
+render();
+if(window.matchMedia("(min-width:981px)").matches) show("s4s");
+})();
+</script>
+
+</body>
+</html>
