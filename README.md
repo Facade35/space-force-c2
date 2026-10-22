@@ -18,3 +18,6 @@ Find the `APPROVED ARTWORK SLOT` comment near the top of `<body>` and replace th
 
 ## Editing content
 All unit, staff, and source data lives in the `<script>` block (`N`, `S`, `Q`, `SOURCES`, `VIEWS`, `RULES`, `MATRIX`, `GLOSS`). On a force node, `op` names the commander holding OPCON, `ta` the commander holding TACON, and `co` a component that only coordinates. Items with a `verify` list were not confirmed in public sources.
+
+## Companion page: EUCOM component command structure
+`eucom.html` covers U.S. European Command (as of 22 Oct 2026). It explains the difference between service component commanders (OPCON of their own service's forces, plus ADCON) and functional component commanders (JFLCC, JFMCC, JFACC, JFSOCC, JFSCC, which normally hold TACON). It shows each USEUCOM component down to unit level. The JFSCC is shown as the SPACEFOREUR-AF commander, flagged Verify. Open items are in `eucom-review-items.md`. It uses the same data model as `index.html`, plus `su` for a supporting command. `FUNC` maps each service component to its functional hat.

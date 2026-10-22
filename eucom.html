@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EUCOM Component Command Structure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: echelon tiers stacked top to bottom, joined by labeled authority bands. An authority lens (pick a commander) highlights what that commander holds OPCON of (service hat) or TACON of (functional hat). Click any box for a detail panel (side panel on wide screens, bottom sheet on phones). Single dark look by design. */
+:root{
+  --bg:#0a0e16;
+  --surface:#111827;
+  --surface-2:#172033;
+  --line:#26324a;
+  --fg:#e3e9f3;
+  --muted:#93a0b8;
+  --dim:#5f6b82;
+  --opcon:#6cb4ff;
+  --opcon-soft:rgba(108,180,255,.13);
+  --tacon:#5fd4c4;
+  --tacon-soft:rgba(95,212,196,.12);
+  --cocom:#b8a3ff;
+  --cocom-soft:rgba(184,163,255,.13);
+  --adcon:#e2b65a;
+  --adcon-soft:rgba(226,182,90,.13);
+  --coord:#c7cedb;
+  --verify:#f08a6c;
+  --verify-soft:rgba(240,138,108,.12);
+  --font-display:"Saira Condensed","Arial Narrow",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.5}
+a{color:var(--opcon)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--opcon);outline-offset:2px}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Banner */
+.classbar{background:#0f3d24;color:#d9f5e5;text-align:center;font:600 12px/1 var(--font-mono);letter-spacing:.12em;padding-block:7px}
+header.top{position:relative;border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(1px 1px at 12% 30%,rgba(255,255,255,.55),transparent 60%),
+    radial-gradient(1px 1px at 38% 70%,rgba(255,255,255,.35),transparent 60%),
+    radial-gradient(1px 1px at 64% 22%,rgba(255,255,255,.45),transparent 60%),
+    radial-gradient(1px 1px at 86% 58%,rgba(255,255,255,.3),transparent 60%),
+    radial-gradient(1.5px 1.5px at 74% 84%,rgba(255,255,255,.4),transparent 60%),
+    linear-gradient(180deg,#0d1424,var(--bg));}
+.top .wrap{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;padding-block:22px 20px}
+.art-slot{width:92px;height:92px;border:1.5px dashed var(--dim);border-radius:10px;display:grid;place-items:center;text-align:center;font:500 10px/1.25 var(--font-mono);color:var(--muted);padding:6px;letter-spacing:.04em}
+.art-slot img{max-width:100%;max-height:100%}
+.eyebrow{font:500 12px/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(28px,4.2vw,44px);line-height:1.02;margin:6px 0 8px;letter-spacing:.01em;text-wrap:balance}
+.disclaimer{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:13px;color:var(--muted)}
+.disclaimer strong{color:var(--fg);font-weight:600}
+.asof{font-family:var(--font-mono);font-size:12px;border:1px solid var(--line);padding:3px 8px;border-radius:4px;color:var(--fg)}
+
+/* Controls */
+.controls{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;padding-block:18px 6px}
+.toggle{display:inline-flex;flex-wrap:wrap;max-width:100%;border:1px solid var(--line);border-radius:8px;padding:3px;background:var(--surface)}
+.toggle button{appearance:none;border:0;background:transparent;color:var(--muted);font:600 14px/1 var(--font-body);padding:10px 14px;border-radius:6px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.toggle button[aria-pressed="true"][data-view="opcon"]{background:var(--opcon-soft);color:var(--opcon)}
+.toggle button[aria-pressed="true"][data-view="adcon"]{background:var(--adcon-soft);color:var(--adcon)}
+.swatch{width:22px;height:0;border-top:2px solid currentColor;display:inline-block}
+.swatch.dashed{border-top-style:dashed}
+.swatch.dotted{border-top-style:dotted;border-top-width:3px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.vbadge{font:600 10px/1 var(--font-mono);letter-spacing:.06em;color:var(--verify);background:var(--verify-soft);border:1px solid rgba(240,138,108,.35);padding:3px 5px;border-radius:3px;text-transform:uppercase}
+.viewnote{font-size:14px;color:var(--muted);max-width:86ch;margin:8px 0 0}
+.viewnote b{color:var(--fg);font-weight:600}
+
+/* Rule callouts */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:14px 0 6px}
+.rule{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface);min-width:0;border-left-width:4px}
+.rule h3{margin:0 0 4px;font:600 12.5px/1.25 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+.rule p{margin:0;font-size:13.5px;color:var(--muted)}
+.rule p b{color:var(--fg);font-weight:600}
+.rule .cite{display:block;margin-top:6px;font:500 11px/1.3 var(--font-mono);color:var(--dim)}
+.rule.cocom{border-left-color:var(--cocom)} .rule.cocom h3{color:var(--cocom)}
+.rule.opcon{border-left-color:var(--opcon)} .rule.opcon h3{color:var(--opcon)}
+.rule.tacon{border-left-color:var(--tacon);background:linear-gradient(180deg,rgba(95,212,196,.07),var(--surface))} .rule.tacon h3{color:var(--tacon)}
+.rule.adcon{border-left-color:var(--adcon)} .rule.adcon h3{color:var(--adcon)}
+
+/* Lens */
+.lens{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 14px;margin:14px 0 4px;display:grid;gap:10px}
+.lens[hidden]{display:none}
+.lens-head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.lens-label{font:600 12px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lens-btns{display:flex;flex-wrap:wrap;gap:6px}
+.lens-btns button{appearance:none;cursor:pointer;font:600 12px/1 var(--font-mono);letter-spacing:.03em;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.lens-btns button:hover{border-color:#3a4a6b;color:var(--fg)}
+.lens-btns button[aria-pressed="true"]{color:var(--bg);background:var(--opcon);border-color:var(--opcon)}
+.lens-btns button.clear[aria-pressed="true"]{background:var(--surface-2);color:var(--fg);border-color:var(--line)}
+.lens-sum{display:grid;gap:8px;font-size:14px}
+.lens-sum p{margin:0;max-width:96ch}
+.lens-sum p b{font-weight:600}
+.lens-row{display:grid;grid-template-columns:92px 1fr;gap:8px;align-items:start}
+.lens-row .k{font:600 11px/1.6 var(--font-mono);letter-spacing:.08em}
+.k.op{color:var(--opcon)} .k.ta{color:var(--tacon)} .k.co{color:var(--coord)} .k.cc{color:var(--cocom)}
+
+/* Main grid */
+main .wrap{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:24px;align-items:start;padding-block:12px 40px}
+.chart{min-width:0}
+.tier{display:grid;gap:10px;padding-top:6px}
+.tier-name{font:600 12px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.groups{display:flex;flex-wrap:wrap;gap:12px}
+.group{flex:1 1 220px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px;background:rgba(17,24,39,.55);display:grid;gap:8px;align-content:start}
+.group.solo{border:0;padding:0;background:none}
+.group.wide{flex:2 1 440px}
+.group.span{flex:3 1 520px}
+.group.wide .group-nodes{grid-template-columns:1fr}
+.group-label{font:500 12px/1.3 var(--font-mono);color:var(--muted)}
+.group-note{font-size:12.5px;color:var(--dim);margin:0}
+.group-nodes{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(205px,1fr))}
+.group.solo .group-nodes{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+
+.band{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 0 10px 18px;margin-left:18px;font:500 12px/1.35 var(--font-mono);color:var(--muted);border-left:2px solid var(--opcon)}
+.band.cocom{border-left-color:var(--cocom)}
+.band.tacon{border-left:2px dashed var(--tacon)}
+.view-adcon .band{border-left:3px dotted var(--adcon)}
+.band b{font-weight:600;letter-spacing:.06em}
+.band .c{color:var(--cocom)} .band .o{color:var(--opcon)} .band .t{color:var(--tacon)} .band .a{color:var(--adcon)}
+
+.nodewrap{display:grid;gap:8px;min-width:0}
+.node{text-align:left;width:100%;appearance:none;font:inherit;color:inherit;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:5px;transition:border-color .15s,background .15s,opacity .15s;position:relative}
+.node:hover{border-color:#3a4a6b;background:var(--surface-2)}
+.node:focus-visible{outline:2px solid var(--opcon);outline-offset:2px}
+.node[aria-current="true"]{border-color:var(--opcon);box-shadow:0 0 0 1px var(--opcon) inset}
+.view-adcon .node[aria-current="true"]{border-color:var(--adcon);box-shadow:0 0 0 1px var(--adcon) inset}
+.node.key{border-color:#3d5a86;background:linear-gradient(180deg,#14223a,#111827)}
+.view-adcon .node.key{border-color:#6b5a32;background:linear-gradient(180deg,#221d12,#111827)}
+.node.context{opacity:.62}
+.node-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.abbr{font:600 12px/1.2 var(--font-mono);color:var(--muted);letter-spacing:.03em}
+.rank{font:500 11px/1 var(--font-mono);color:var(--fg);border:1px solid var(--line);padding:3px 5px;border-radius:3px;white-space:nowrap}
+.node-title{font-family:var(--font-display);font-weight:600;font-size:18px;line-height:1.12;letter-spacing:.01em}
+.node-sum{font-size:13px;color:var(--muted);line-height:1.4}
+.node-foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 11px/1.2 var(--font-mono);color:var(--dim)}
+.hatnote{font:500 11px/1.35 var(--font-mono);color:var(--tacon)}
+.view-adcon .hatnote{color:var(--adcon)}
+.strip{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font:600 10.5px/1 var(--font-mono);letter-spacing:.04em;padding:4px 6px;border-radius:3px;border:1px solid;white-space:nowrap}
+.tag.op{color:var(--opcon);border-color:rgba(108,180,255,.45);background:var(--opcon-soft)}
+.tag.ta{color:var(--tacon);border-color:rgba(95,212,196,.45);background:var(--tacon-soft);border-style:dashed}
+.tag.cc{color:var(--cocom);border-color:rgba(184,163,255,.45);background:var(--cocom-soft)}
+.tag.ad{color:var(--adcon);border-color:rgba(226,182,90,.45);background:var(--adcon-soft);border-style:dotted}
+.tag.co{color:var(--coord);border-color:rgba(199,206,219,.35);background:rgba(199,206,219,.07)}
+.tag.na{color:var(--dim);border-color:var(--line)}
+
+/* lens states */
+.lensing .node.force:not(.hit){opacity:.28}
+.lensing .node.comp:not(.hit):not(.self):not([data-id="cdr"]){opacity:.45}
+.lensing .nodewrap.dim .chips{opacity:.3}
+.node.hit{border-color:var(--opcon)}
+.node.hit.ta-only{border-color:var(--tacon);border-style:dashed}
+.node.hit.co-only{border-color:var(--coord);border-style:dotted}
+.node.self{box-shadow:0 0 0 2px var(--opcon) inset}
+.node-right{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.chip{appearance:none;font:500 11.5px/1.2 var(--font-mono);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:4px 6px;cursor:pointer;text-align:left}
+.chip:hover{border-color:#3a4a6b}
+.chip.staff{color:var(--muted)}
+.staffblock{display:grid;gap:8px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg)}
+.sb-row{display:grid;gap:5px}
+.sb-label{font:600 10.5px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.sb-grid{display:grid;gap:5px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.sb-grid.dir{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.sb-tile{appearance:none;text-align:left;cursor:pointer;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:6px 8px;display:grid;gap:2px;min-width:0}
+.sb-tile:hover{border-color:#3a4a6b;background:var(--surface-2)}
+.sb-tile b{font:600 12px/1.1 var(--font-mono)}
+.sb-tile span{font-size:11.5px;line-height:1.25;color:var(--muted)}
+
+/* Detail panel */
+.panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:18px}
+.panel h2{font-family:var(--font-display);font-weight:700;font-size:26px;line-height:1.05;margin:4px 0 6px;text-wrap:balance}
+.panel .lead{font-size:14px;color:var(--fg);margin:0 0 10px}
+.panel h4{margin:16px 0 6px;font:600 11px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.panel ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:13.5px}
+.panel p{font-size:13.5px;margin:0}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;margin:8px 0 0}
+.facts dt{color:var(--muted);font-family:var(--font-mono);font-size:11.5px;padding-top:2px}
+.facts dd{margin:0}
+.authbox{display:grid;gap:6px}
+.authbox div{padding:4px 0 4px 10px;font-size:13.5px;border-left:2px solid var(--line)}
+.authbox b{font:600 10.5px/1 var(--font-mono);letter-spacing:.1em;display:block;margin-bottom:3px}
+.authbox .cc{border-left-color:var(--cocom)} .authbox .cc b{color:var(--cocom)}
+.authbox .op{border-left-color:var(--opcon)} .authbox .op b{color:var(--opcon)}
+.authbox .ta{border-left:2px dashed var(--tacon)} .authbox .ta b{color:var(--tacon)}
+.authbox .ad{border-left:3px dotted var(--adcon)} .authbox .ad b{color:var(--adcon)}
+.authbox .co{border-left:2px dotted var(--coord)} .authbox .co b{color:var(--coord)}
+.verify{margin-top:14px;border:1px solid rgba(240,138,108,.35);background:var(--verify-soft);border-radius:8px;padding:10px 12px}
+.verify h4{color:var(--verify);margin-top:0}
+.src{font-size:12.5px;color:var(--muted)}
+.src a{word-break:break-word}
+.linkbtn{appearance:none;background:none;border:0;padding:0;color:var(--opcon);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.close{display:none}
+.empty-hint{color:var(--muted);font-size:14px}
+
+/* Matrix */
+section.ref{border-top:1px solid var(--line);padding-block:28px}
+section.ref h2{font-family:var(--font-display);font-weight:700;font-size:28px;margin:0 0 6px}
+section.ref .intro{margin:0 0 14px;color:var(--muted);font-size:14px;max-width:90ch}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table.mx{border-collapse:collapse;width:100%;min-width:880px;font-size:13px}
+table.mx th,table.mx td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.mx thead th{font:600 11px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;background:var(--surface);position:sticky;top:0}
+table.mx thead th.cc{color:var(--cocom)} table.mx thead th.op{color:var(--opcon)} table.mx thead th.ta{color:var(--tacon)} table.mx thead th.ad{color:var(--adcon)}
+table.mx tbody th{font-weight:600;min-width:170px}
+table.mx tbody th button{appearance:none;background:none;border:0;padding:0;color:var(--fg);font:600 13px/1.3 var(--font-body);cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+table.mx tbody th small{display:block;font:500 11px/1.3 var(--font-mono);color:var(--dim);margin-top:2px}
+table.mx td{color:var(--muted)}
+table.mx td.none{color:var(--dim)}
+table.mx tbody tr:hover{background:rgba(23,32,51,.6)}
+
+.gloss{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px 28px}
+.gloss div{min-width:0}
+.gloss dt{font:600 13px/1.3 var(--font-mono);color:var(--fg)}
+.gloss dd{margin:3px 0 0;font-size:13.5px;color:var(--muted)}
+.gloss blockquote{margin:6px 0 0;padding:4px 0 4px 10px;border-left:2px solid var(--line);font-size:13px;color:var(--fg)}
+.gloss cite{display:block;font:normal 500 11px/1.3 var(--font-mono);color:var(--dim);margin-top:3px}
+ol.sources{margin:0;padding-left:22px;display:grid;gap:8px;font-size:13.5px;max-width:110ch}
+ol.sources li{color:var(--muted);min-width:0;overflow-wrap:anywhere}
+ol.sources li b{color:var(--fg);font-weight:500}
+.foot{font-size:12.5px;color:var(--dim);padding-block:20px 36px;border-top:1px solid var(--line)}
+
+@media (max-width:980px){
+  main .wrap{grid-template-columns:minmax(0,1fr)}
+  .panel{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:78vh;border-radius:14px 14px 0 0;z-index:20;
+    padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+    box-shadow:0 -12px 40px rgba(0,0,0,.6)}
+  .panel.idle{display:none}
+  .close{display:inline-block;float:right;appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:6px 10px;font:500 13px/1 var(--font-body);cursor:pointer}
+}
+@media (max-width:520px){
+  .top .wrap{grid-template-columns:1fr}
+  .art-slot{width:72px;height:72px}
+  .group-nodes,.group.solo .group-nodes{grid-template-columns:1fr}
+  .lens-row{grid-template-columns:1fr;gap:2px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Service vs functional comparison */
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:6px 0 18px}
+.cmp{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 16px;border-top-width:4px;min-width:0}
+.cmp.svc{border-top-color:var(--opcon)} .cmp.fn{border-top-color:var(--tacon)}
+.cmp h3{margin:0 0 2px;font-family:var(--font-display);font-weight:700;font-size:22px;line-height:1.1}
+.cmp .sub{font:500 12px/1.3 var(--font-mono);color:var(--muted);margin:0 0 10px}
+.cmp dl{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;margin:0;font-size:13.5px}
+.cmp dt{font:600 11px/1.5 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.cmp dd{margin:0;color:var(--fg)}
+.cmp.svc dt{color:var(--opcon)} .cmp.fn dt{color:var(--tacon)}
+.examples{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:16px}
+.ex{border:1px dashed var(--line);border-radius:10px;padding:12px 14px;background:rgba(17,24,39,.55);min-width:0}
+.ex h4{margin:0 0 8px;font:600 12px/1.3 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ex .authbox div{font-size:13px}
+table.mx td .vbadge{margin-left:4px}
+.tag.su{color:var(--coord);border-color:rgba(199,206,219,.35);background:rgba(199,206,219,.07);border-style:dotted}
+.k.su{color:var(--coord)}
+.authbox .su{border-left:2px dotted var(--coord)} .authbox .su b{color:var(--coord)}
+@media (max-width:520px){.cmp dl{grid-template-columns:1fr;gap:2px}}
+</style>
+<style>html,body{margin:0;padding:0}</style>
+</head>
+<body>
+<div class="classbar">UNCLASSIFIED · FOR INFORMATIONAL AND EDUCATIONAL (TRAINING) USE</div>
+
+<header class="top">
+  <div class="wrap">
+    <!-- APPROVED ARTWORK SLOT: replace the text below with <img src="your-approved-emblem.png" alt="[approved emblem]">. No official emblems are drawn on this page. -->
+    <div class="art-slot" id="art-slot" aria-label="Placeholder for approved artwork">[APPROVED<br>ARTWORK<br>SLOT]</div>
+    <div>
+      <div class="eyebrow">Training reference · U.S. European Command (USEUCOM)</div>
+      <h1>EUCOM Component Command Structure</h1>
+      <div class="disclaimer">
+        <strong>Illustrative only. Not official guidance. Organizational structures change.</strong>
+        <span class="asof">As of 22 Oct 2026</span>
+        <a href="index.html">Companion: USSPACECOM Space Force chain of command</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="ref" id="hats" style="border-top:0;padding-top:20px">
+  <div class="wrap">
+    <h2>Service components and functional components</h2>
+    <p class="intro">Every force in Europe answers to two kinds of component commander. A <b>service component commander</b> runs one service's forces for the combatant commander and does that service's administrative work. A <b>functional component commander</b> directs forces of several services in one domain. At USEUCOM the same officer usually wears both hats: the service hat gives OPCON of their own service's forces, and the functional hat gives TACON of other services' forces made available for that domain.</p>
+    <div class="compare">
+      <div class="cmp svc">
+        <h3>Service component commander</h3>
+        <p class="sub">USAREUR-AF · NAVEUR-NAVAF · USAFE-AFAFRICA · MARFOREUR/AF · SPACEFOREUR-AF</p>
+        <dl>
+          <dt>Exists</dt><dd>Always. One standing command per service under the combatant command.</dd>
+          <dt>Forces</dt><dd>Only their own service's forces assigned or attached to USEUCOM.</dd>
+          <dt>Operational</dt><dd>Normally <b>OPCON</b> of those forces, delegated by CDRUSEUCOM.</dd>
+          <dt>Administrative</dt><dd><b>ADCON</b> for their military department: personnel, training, equipping, discipline, and service logistics. This stays with the service whatever joint hat the commander also wears.</dd>
+          <dt>Answers to</dt><dd>CDRUSEUCOM for operations. Their service chief and military department for administration.</dd>
+        </dl>
+      </div>
+      <div class="cmp fn">
+        <h3>Functional component commander</h3>
+        <p class="sub">JFLCC · JFMCC · JFACC · JFSOCC · JFSCC</p>
+        <dl>
+          <dt>Exists</dt><dd>When the combatant commander designates one, for an operation or as a standing role. Its authority is whatever the establishing commander gives it.</dd>
+          <dt>Forces</dt><dd>Forces of any service made available for that domain or function (land, maritime, air, special operations, space).</dd>
+          <dt>Operational</dt><dd>Normally <b>TACON</b>: detailed direction of missions. Not organizational authority over other services' forces.</dd>
+          <dt>Administrative</dt><dd><b>None</b> over other services' forces. Their ADCON stays with their own service component.</dd>
+          <dt>Who holds it</dt><dd>Usually the service component commander with most of the forces and the C2 capability for that domain, so one person wears two hats.</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="tablewrap"><table class="mx" id="domains"></table></div>
+    <div class="examples" id="examples"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="toggle" role="group" aria-label="Chain of command">
+      <button type="button" id="btn-opcon" data-view="opcon" aria-pressed="true"><span class="swatch"></span>Operational chain (COCOM · OPCON · TACON)</button>
+      <button type="button" id="btn-adcon" data-view="adcon" aria-pressed="false"><span class="swatch dotted"></span>Administrative chain (ADCON)</button>
+    </div>
+    <div class="legend" aria-label="Legend">
+      <span><span class="tag cc">COCOM</span>combatant command</span>
+      <span><span class="tag op">OPCON</span>operational control (service hat)</span>
+      <span><span class="tag ta">TACON</span>tactical control (functional hat)</span>
+      <span><span class="tag ad">ADCON</span>administrative control</span>
+      <span><span class="tag su">SUPPORT</span>supporting command</span>
+      <span><span class="vbadge">Verify</span>not confirmed publicly</span>
+    </div>
+  </div>
+  <p class="viewnote" id="viewnote"></p>
+  <div class="rules" id="rules"></div>
+  <div class="lens" id="lens" aria-label="Authority lens"></div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="chart" id="chart" aria-live="polite"></div>
+    <aside class="panel idle" id="panel" aria-label="Details">
+      <p class="empty-hint">Select a box in the chart to see its mission, both of its commander's hats, the authority held over it, who it reports to, and what it supervises.</p>
+    </aside>
+  </div>
+</main>
+
+<section class="ref" id="matrix-sec">
+  <div class="wrap">
+    <h2>Who holds which authority</h2>
+    <p class="intro">One row per commander, split by hat. Select a commander's name to highlight everything under that commander in the operational chart.</p>
+    <div class="tablewrap"><table class="mx" id="matrix"></table></div>
+  </div>
+</section>
+
+<section class="ref">
+  <div class="wrap">
+    <h2>Command authorities and terms</h2>
+    <p class="intro">Quoted definitions come from current public doctrine. Joint Publication (JP) 1 Volume 2, JP 3-0 and JP 3-14 are posted only on the Joint Staff's access-controlled site, so the quotes come from Air Force and Space Force doctrine that restates them. Terms without a quote are summaries.</p>
+    <dl class="gloss" id="gloss"></dl>
+  </div>
+</section>
+
+<section class="ref">
+  <div class="wrap">
+    <h2>Sources</h2>
+    <p class="intro">Content is drawn only from the unclassified public sources below. Items still open are marked <span class="vbadge">Verify</span>. Wikipedia is used for current unit listings and is marked as secondary.</p>
+    <ol class="sources" id="sources"></ol>
+  </div>
+</section>
+
+<div class="wrap foot">
+  Illustrative only. Not official guidance. Organizational structures change. As of 22 Oct 2026. Unclassified; built only from publicly available material. Names of commanders are left out on purpose; grades are typical. Not endorsed by U.S. European Command, the Department of War, or any military service. No official emblems, seals, patches, or logos are reproduced.
+</div>
+
+<script>
+(function(){
+/* ================= Sources ================= */
+var SOURCES = {
+  crs:{t:"Congressional Research Service IF11130, Defense Primer: U.S. European Command (EUCOM), 30 Jun 2026",u:"https://www.everycrsreport.com/reports/IF11130.html"},
+  afdp30:{t:"Air Force Doctrine Publication (AFDP) 3-0, Operations, 22 Jan 2025 (restates JP 1 Vol 2)",u:"https://www.doctrine.af.mil/Portals/61/documents/AFDP_3-0/AFDP3-0Operations.pdf"},
+  afdp301:{t:"AFDP 3-0.1, Command and Control, 22 Jan 2025, Appendix A (restates JP 1 Vol 2)",u:"https://www.doctrine.af.mil/Portals/61/documents/AFDP_3-0_1/AFDP3-0.1CommandandControl.pdf"},
+  fm331:{t:"FM 3-31, Joint Force Land Component Commander Operations, Ch. 2 (older Army doctrine; GlobalSecurity mirror)",u:"https://www.globalsecurity.org/military/library/policy/army/fm/3-31/ch2.htm"},
+  sfdd1:{t:"Space Force Doctrine Document 1 (SFDD-1), The Space Force, 3 Apr 2025, Ch. 4",u:"https://www.starcom.spaceforce.mil/Portals/2/Space%20Force%20Doctrine%20Document%201%20FINAL_4Apr25.pdf"},
+  spfi:{t:"Space Force Instruction (SPFI) 13-105, SPACEFOR Staff Operations, Readiness, and Structures, 6 Jun 2025",u:"https://static.e-publishing.af.mil/production/1/sf_s347/publication/spfi13-105/spfi13-105.pdf"},
+  usc:{t:"10 U.S.C. §164, Commanders of combatant commands: assignment; powers and duties",u:"https://www.law.cornell.edu/uscode/text/10/164"},
+  usc162:{t:"10 U.S.C. §162, Combatant commands: assigned forces; chain of command",u:"https://www.law.cornell.edu/uscode/text/10/162"},
+  greenland:{t:"Breaking Defense, “Trump shifts Greenland from EUCOM to NORTHCOM's responsibility,” Jun 2025",u:"https://breakingdefense.com/2025/06/trump-shifts-greenland-from-eucom-to-northcoms-responsibility/"},
+  sfact:{t:"U.S. Space Force, “EUCOM, AFRICOM, Space Force activate new service component command,” Dec 2023",u:"https://www.spaceforce.mil/News/Article-Display/Article/3611951/eucom-africom-space-force-activate-new-service-component-command/"},
+  sfrel:{t:"USAFRICOM press release, “USEUCOM, USAFRICOM and Space Force activate U.S. Space Forces in Europe and Africa as new service component command,” 8 Dec 2023",u:"https://www.africom.mil/pressrelease/35360/useucom-usafricom-and-space-force-activate-us-space-forces-in-europe-and-africa-as-new-ser"},
+  sfcoc:{t:"U.S. Space Force, “Space Forces in Europe – Space Forces Africa changes command,” Aug 2026",u:"https://www.spaceforce.mil/News/Article-Display/Article/4572659/space-forces-in-europe-space-forces-africa-changes-command/"},
+  sfpage:{t:"U.S. Space Force, “U.S. Space Forces – Europe & Africa” component page",u:"https://www.spaceforce.mil/About-Us/-Space-Force-Components/US-Space-Forces-Europe-Africa/"},
+  s4svisit:{t:"U.S. Space Forces–Space, “S4S hosts Brig. Gen. Jacob Middleton, commander of USSPACEFOR-EURAF,” May 2026",u:"https://www.spaceforces-space.mil/Newsroom/Article/4486217/s4s-hosts-brig-gen-jacob-middleton-commander-of-usspacefor-euraf/"},
+  cjfscc:{t:"USSPACECOM, “Ceremony recognizes C/JFSCC designation, deactivates CFSCC, JTF-SD,” 9 Jan 2024",u:"https://www.spacecom.mil/Newsroom/News/Article-Display/Article/3638022/ceremony-recognizes-cjfscc-designation-deactivates-cfscc-jtf-sd/"},
+  armycon:{t:"USAFRICOM press release, “U.S. Army Europe and Africa Commands consolidate,” Nov 2020",u:"https://www.africom.mil/pressrelease/33319/us-army-europe-and-africa-commands-consolidate"},
+  wusareur:{t:"Wikipedia, “United States Army Europe and Africa” (secondary; organization as of Jan 2026, citing europeafrica.army.mil/Units)",u:"https://en.wikipedia.org/wiki/United_States_Army_Europe_and_Africa"},
+  wvcorps:{t:"Wikipedia, “V Corps (United States)” (secondary; organization as of Dec 2025)",u:"https://en.wikipedia.org/wiki/V_Corps_(United_States)"},
+  wsetaf:{t:"Wikipedia, “Southern European Task Force, Africa” (secondary; organization as of Jan 2026)",u:"https://en.wikipedia.org/wiki/Southern_European_Task_Force,_Africa"},
+  wmdce:{t:"Wikipedia, “Multi-Domain Command Europe” (secondary; structure as of Jan 2026)",u:"https://en.wikipedia.org/wiki/Multi-Domain_Command_Europe"},
+  mdce:{t:"Stars and Stripes, Multi-Domain Command Europe formed from the 56th Artillery Command and 2nd Multi-Domain Task Force, 17 Nov 2025",u:"https://www.stripes.com/branches/army/2025-11-17/multidomain-command-army-artillery-avenger-triad-19753780.html"},
+  w10aamdc:{t:"Wikipedia, “10th Army Air and Missile Defense Command” (secondary)",u:"https://en.wikipedia.org/wiki/10th_Army_Air_and_Missile_Defense_Command"},
+  w21tsc:{t:"Wikipedia, “21st Theater Sustainment Command” (secondary; organization as of Dec 2025)",u:"https://en.wikipedia.org/wiki/21st_Theater_Sustainment_Command"},
+  w7atc:{t:"Wikipedia, “7th Army Training Command” (secondary; organization as of Dec 2025)",u:"https://en.wikipedia.org/wiki/7th_Army_Training_Command"},
+  wnaveur:{t:"Wikipedia, “United States Naval Forces Europe and Africa” (secondary)",u:"https://en.wikipedia.org/wiki/United_States_Naval_Forces_Europe_and_Africa"},
+  w6f:{t:"Wikipedia, “United States Sixth Fleet” (secondary; task force descriptions, several dated 2011–2024)",u:"https://en.wikipedia.org/wiki/United_States_Sixth_Fleet"},
+  afmd9:{t:"Air Force Mission Directive (AFMD) 9, Headquarters U.S. Air Forces in Europe – Air Forces Africa, 2019",u:"https://static.e-publishing.af.mil/production/1/af_a5/publication/afmd9/afmd9.pdf"},
+  usafe:{t:"Air Force News, “USAFE-AFAFRICA, NATO Allied Air Command welcomes new commander,” Jun 2022",u:"https://www.af.mil/News/Article-Display/Article/3078151/usafe-afafrica-nato-allied-air-command-welcomes-new-commander/"},
+  usafe2:{t:"USAFE-AFAFRICA, “USAFE-AFAFRICA welcomes new commander” (air component for two unified commands)",u:"https://www.usafe.af.mil/News/Article-Display/Article/1831328/usafe-afafrica-welcomes-new-commander/"},
+  wusafe:{t:"Wikipedia, “United States Air Forces in Europe – Air Forces Africa” (secondary; operating units as of 2022)",u:"https://en.wikipedia.org/wiki/United_States_Air_Forces_in_Europe_%E2%80%93_Air_Forces_Africa"},
+  af3:{t:"Air & Space Forces Magazine, “3rd Is Coming Back” (3rd Air Force as USAFE's warfighting headquarters at Ramstein)",u:"https://www.airandspaceforces.com/1080back"},
+  marfor:{t:"U.S. Marine Corps Forces Europe and Africa, “About” (Northern Flank focus; Marine Rotational Force – Europe)",u:"https://www.marforeur.marines.mil/About/"},
+  wmarfor:{t:"Wikipedia, “United States Marine Corps Forces Europe and Africa” (secondary)",u:"https://en.wikipedia.org/wiki/United_States_Marine_Corps_Forces_Europe_and_Africa"},
+  wsoceur:{t:"Wikipedia, “Special Operations Command Europe” (secondary; citing EUCOM “Our Forces: SOCEUR”)",u:"https://en.wikipedia.org/wiki/Special_Operations_Command_Europe"},
+  sofcom:{t:"NATO SHAPE, “Allied Special Operations Forces Command Holds Change of Command Ceremony,” 4 Oct 2024",u:"https://shape.nato.int/news-archive/2024/allied-special-operations-forces-command-holds-change-of-command-ceremony"},
+  jfhqc:{t:"DefenseScoop, “NDAA FY26: Joint task force cyber shake-up,” 24 Jul 2025 (JFHQ-C alignments)",u:"https://defensescoop.com/2025/07/24/ndaa-fy26-joint-task-force-cyber-shake-up-how-dod-employs-digital-capabilities/"}
+};
+var SRC_ORDER = Object.keys(SOURCES);
+
+/* ================= Holders ================= */
+var H = {
+  cdr:{lab:"CDRUSEUCOM",node:"cdr"},
+  army:{lab:"COMUSAREUR-AF",node:"army"}, jflcc:{lab:"JFLCC",node:"army"},
+  navy:{lab:"COMUSNAVEUR",node:"navy"}, jfmcc:{lab:"JFMCC",node:"navy"},
+  af:{lab:"COMUSAFE",node:"af"}, jfacc:{lab:"JFACC",node:"af"},
+  marines:{lab:"COMMARFOREUR/AF",node:"marines"},
+  soc:{lab:"COMSOCEUR",node:"soc"}, jfsocc:{lab:"JFSOCC",node:"soc"},
+  space:{lab:"COMSPACEFOR",node:"space"}, jfscc:{lab:"JFSCC",node:"space"},
+  cyber:{lab:"USCYBERCOM / JFHQ-C",node:"cyber"},
+  svc:{lab:"Own service component",node:null}
+};
+var FUNC = {army:"jflcc",navy:"jfmcc",af:"jfacc",soc:"jfsocc",space:"jfscc"};
+var LENSES = ["cdr","army","navy","af","marines","soc","space","cyber"];
+var LENS_BTN = {cdr:"CDRUSEUCOM",army:"USAREUR-AF / JFLCC",navy:"NAVEUR / JFMCC",af:"USAFE / JFACC",marines:"MARFOREUR/AF",soc:"SOCEUR / JFSOCC",space:"SPACEFOREUR-AF / JFSCC",cyber:"Cyber (supporting)"};
+var LENS_TEXT = {
+  cdr:"<b>CDRUSEUCOM holds COCOM</b> over every force assigned or attached to USEUCOM. COCOM comes from law and cannot be delegated. The commander delegates <b>OPCON</b> of each service's forces to that service's component commander and designates <b>functional component commanders</b> who get <b>TACON</b> of forces made available to them. The same officer is also NATO's Supreme Allied Commander Europe (SACEUR).",
+  army:"<b>As the Army service component</b>, COMUSAREUR-AF holds <b>OPCON of Army forces</b> assigned or attached to USEUCOM, and ADCON for the Department of the Army. <b>As JFLCC</b>, when designated, the same commander gets <b>TACON of land forces other services make available</b>, such as Marine forces operating ashore.",
+  navy:"<b>As the Navy service component</b>, COMUSNAVEUR holds <b>OPCON of Navy forces</b>, directed through Sixth Fleet. <b>As JFMCC</b>, when designated, the same commander gets <b>TACON of maritime forces other services make available</b>.",
+  af:"<b>As the Air Force service component</b>, COMUSAFE holds <b>OPCON of Air Force forces</b> at the direction of CDRUSEUCOM (and CDRUSAFRICOM). <b>As JFACC</b>, when designated, the same commander gets <b>TACON of air capabilities other services make available</b>, tasked through the 603rd Air Operations Center.",
+  marines:"<b>MARFOREUR/AF holds OPCON of Marine Corps forces</b> assigned or attached to USEUCOM, and ADCON for the Marine Corps. It has <b>no functional hat</b>. When its forces are made available to a functional component (for example the JFLCC for a land operation, or the JFSCC for space), that functional commander gets <b>TACON</b> and MARFOREUR/AF keeps OPCON.",
+  soc:"<b>SOCEUR is a subordinate unified command</b>, not a service component. Its commander holds <b>OPCON of special operations forces</b> in theater as delegated by CDRUSEUCOM and normally acts as the <b>JFSOCC</b>, with <b>TACON</b> of SOF from any service. ADCON of SOF stays with their services and USSOCOM's service components.",
+  space:"<b>As COMSPACEFOR</b>, the SPACEFOREUR-AF commander holds <b>OPCON of Space Force forces</b> assigned, attached or presented to USEUCOM, and ADCON for the Department of the Air Force through the Chief of Space Operations. <b>As JFSCC</b> (working assumption for this reference; not confirmed publicly), the same commander holds <b>TACON of space forces from every service made available to USEUCOM</b>. USSPACECOM's CJFSCC supports from outside the theater.",
+  cyber:"<b>USEUCOM has no cyber component of its own.</b> U.S. Cyber Command keeps COCOM of cyber forces and supports USEUCOM through a Joint Force Headquarters–Cyber, reported in 2025 as JFHQ-C (Air Force). This is a <b>support relationship</b>, not OPCON or TACON held by a USEUCOM commander."
+};
+
+/* ================= Nodes ================= */
+var V = "Verify";
+var NOTE_FN = "Functional component designations are made by the combatant commander and are not published for USEUCOM. The service component commander is shown in the usual dual hat.";
+var N = {
+ cdr:{abbr:"CDRUSEUCOM · SACEUR",title:"Commander, U.S. European Command",rank:"O-10",kind:"key",role:"comp",holder:"cdr",
+  hat:"Two hats: U.S. combatant commander, and NATO Supreme Allied Commander Europe (SACEUR)",
+  sum:"Combatant commander. Holds COCOM over all forces assigned or attached to USEUCOM.",
+  location:"Patch Barracks, Stuttgart, Germany",
+  mission:"Leads U.S. military activity across Europe. All five armed services and U.S. Special Operations Command provide forces to USEUCOM. The commander has traditionally also served as SACEUR. Greenland moved from USEUCOM to U.S. Northern Command in June 2025.",
+  resp:["Plan and conduct operations in the USEUCOM area of responsibility","Designate functional components and set support relationships among components","Work with NATO allies and partners (as SACEUR, commands NATO's Allied Command Operations)"],
+  auth:["COCOM over all forces assigned or attached to USEUCOM. COCOM comes from law (10 U.S.C. §164) and cannot be delegated.","Delegates OPCON of each service's forces to that service's component commander","Designates functional component commanders (JFLCC, JFMCC, JFACC, JFSOCC, JFSCC) and gives them TACON of forces made available","Directive authority for logistics"],
+  rep:{opcon:"The President, through the Secretary of War (not shown)",adcon:"Not in a service administrative chain. A combatant commander holds no service ADCON."},
+  sup:["Five service components: USAREUR-AF, NAVEUR-NAVAF, USAFE-AFAFRICA, MARFOREUR/AF, SPACEFOREUR-AF","Subordinate unified command: SOCEUR","Headquarters joint staff (J1–J8)"],
+  staffGroups:[["Command section",["dcdr","cos","csel"]],["Directorates",["j1","j2","j3","j4","j5","j6","j7","j8"]]],
+  src:["crs","usc","greenland"]},
+
+ army:{abbr:"USAREUR-AF · JFLCC",title:"U.S. Army Europe and Africa",rank:"O-10",kind:"comp",role:"comp",holder:"army",adl:"Dept. of the Army",
+  hat:"Service hat: Army component to USEUCOM and USAFRICOM. Functional hat: JFLCC when designated (Verify)",
+  sum:"Army service component and theater army. OPCON of Army forces; usual JFLCC.",
+  location:"Wiesbaden, Germany",
+  mission:"Army service component command and theater army for both USEUCOM and USAFRICOM. U.S. Army Europe and U.S. Army Africa consolidated on 20 Nov 2020.",
+  resp:["Provide and employ Army forces for USEUCOM","Theater army functions: sustainment, air and missile defense, fires, training of allies and partners","Army support to other services in theater"],
+  auth:["Service hat: OPCON of Army forces assigned or attached to USEUCOM, as delegated by CDRUSEUCOM","Service hat: ADCON of Army forces for the Department of the Army","Functional hat (JFLCC, when designated): TACON of land forces other components make available"],
+  rep:{opcon:"CDRUSEUCOM (and CDRUSAFRICOM for the Africa hat)",adcon:"Department of the Army"},
+  sup:["V Corps","Southern European Task Force, Africa","Multi-Domain Command Europe","10th Army Air and Missile Defense Command","21st Theater Sustainment Command","7th Army Training Command","68th Theater Medical Command, U.S. Army NATO Brigade"],
+  verify:[NOTE_FN],src:["armycon","wusareur","afdp30","fm331"]},
+
+ navy:{abbr:"NAVEUR-NAVAF · JFMCC",title:"U.S. Naval Forces Europe and Africa",rank:"O-10",kind:"comp",role:"comp",holder:"navy",adl:"Dept. of the Navy",
+  hat:"Service hat: Navy component to USEUCOM and USAFRICOM. Functional hat: JFMCC when designated (Verify). NATO hat: Commander, Allied Joint Force Command Naples",
+  sum:"Navy service component. Directs naval operations through Sixth Fleet; usual JFMCC.",
+  location:"Naval Support Activity Naples, Italy",
+  mission:"Plans, conducts and supports naval operations in the European theater as tasked by CDRUSEUCOM, and in Africa for USAFRICOM. Directs naval operations through Commander, U.S. Sixth Fleet and shore support through Navy Region Europe, Africa, Southwest Asia. The deputy commander is also the Sixth Fleet commander.",
+  resp:["Provide and employ Navy forces for USEUCOM","Maritime security and theater security cooperation","Shore installations through Navy Region EURAFSWA"],
+  auth:["Service hat: OPCON of Navy forces assigned or attached to USEUCOM, exercised through Sixth Fleet","Service hat: ADCON of Navy forces for the Department of the Navy","Functional hat (JFMCC, when designated): TACON of maritime forces other components make available"],
+  rep:{opcon:"CDRUSEUCOM (and CDRUSAFRICOM for the Africa hat)",adcon:"Department of the Navy (Chief of Naval Operations)"},
+  sup:["U.S. Sixth Fleet and its task forces","Navy Region Europe, Africa, Southwest Asia"],
+  verify:[NOTE_FN],src:["wnaveur","w6f","afdp30"]},
+
+ af:{abbr:"USAFE-AFAFRICA · JFACC",title:"U.S. Air Forces in Europe – Air Forces Africa",rank:"O-10",kind:"comp",role:"comp",holder:"af",adl:"Dept. of the Air Force",
+  hat:"Service hat: Air Force component to USEUCOM and USAFRICOM. Functional hat: JFACC when designated (Verify). NATO hat: Commander, Allied Air Command",
+  sum:"Air Force service component and major command. OPCON of Air Force forces; usual JFACC.",
+  location:"Ramstein Air Base, Germany",
+  mission:"The air component for two unified commands, USEUCOM and USAFRICOM. Its commander also leads NATO Allied Air Command at Ramstein. Third Air Force serves as the warfighting headquarters, and the 603rd Air Operations Center is where air operations are planned and tasked.",
+  resp:["Provide and employ Air Force forces for USEUCOM","Plan, task and control air operations through the 603rd AOC","Air base operations across Europe"],
+  auth:["Service hat: authority over assigned Air Force forces, with OPCON exercised at the direction of CDRUSEUCOM and CDRUSAFRICOM (AFMD 9)","Service hat: ADCON of Air Force forces for the Department of the Air Force","Functional hat (JFACC, when designated): TACON of air capabilities other components make available"],
+  rep:{opcon:"CDRUSEUCOM (and CDRUSAFRICOM for the Africa hat)",adcon:"Chief of Staff of the Air Force (Department of the Air Force)"},
+  sup:["Third Air Force and the 603rd Air Operations Center","Wings in the United Kingdom, Germany, Italy and Turkey"],
+  verify:[NOTE_FN],src:["afmd9","usafe","usafe2","wusafe","afdp30"]},
+
+ marines:{abbr:"MARFOREUR/AF",title:"U.S. Marine Corps Forces Europe and Africa",rank:"O-8",kind:"comp",role:"comp",holder:"marines",adl:"Dept. of the Navy (USMC)",
+  hat:"Service hat only: Marine Corps component to USEUCOM and USAFRICOM. No functional hat",
+  sum:"Marine Corps service component. OPCON of Marine forces in theater; no functional hat.",
+  location:"Panzer Kaserne, Böblingen, Germany",
+  mission:"Headquarters and liaison organization for Marine Corps activity in Europe and Africa (dual-hatted with Marine Forces Africa since 2008). Focuses on Europe's Northern Flank, keeps a rotational presence in Norway, and offers a flexible amphibious option.",
+  resp:["Represent Marine Corps capabilities to CDRUSEUCOM","Plan Marine force employment, including the Norway prepositioning program","Coordinate Marine forces afloat with NAVEUR and Sixth Fleet"],
+  auth:["Service hat: OPCON of Marine Corps forces assigned or attached to USEUCOM, as delegated by CDRUSEUCOM","Service hat: ADCON of Marine forces for the Marine Corps","No functional hat: when Marine forces are made available to a functional component, that commander gets TACON and MARFOREUR/AF keeps OPCON"],
+  rep:{opcon:"CDRUSEUCOM (and CDRUSAFRICOM for the Africa hat)",adcon:"Headquarters Marine Corps (Department of the Navy)"},
+  sup:["Marine Rotational Force – Europe (Norway)","Marine Corps Prepositioning Program – Norway","Marine forces afloat with Sixth Fleet, as directed"],
+  src:["marfor","wmarfor","afdp30"]},
+
+ soc:{abbr:"SOCEUR · JFSOCC",title:"Special Operations Command Europe",rank:"O-8",kind:"comp",role:"comp",holder:"soc",adl:"USSOCOM (SOF-peculiar)",
+  hat:"Subordinate unified command (not a service component). Functional hat: JFSOCC (Verify). Also the USEUCOM special operations director",
+  sum:"Theater special operations command. OPCON of SOF in theater; normally the JFSOCC.",
+  location:"Patch Barracks, Stuttgart, Germany",
+  mission:"Plans, employs and assesses special operations forces in the USEUCOM area of responsibility. A subordinate unified command of USEUCOM since 30 May 1986; its commander is also USEUCOM's special operations director. Organizationally part of U.S. Special Operations Command.",
+  resp:["Employ special operations forces for CDRUSEUCOM","Build partner special operations capability"],
+  auth:["OPCON of special operations forces assigned or attached to USEUCOM, as delegated by CDRUSEUCOM","Functional hat (JFSOCC): TACON of SOF from any service made available","No service ADCON: SOF ADCON stays with their services and USSOCOM's components"],
+  rep:{opcon:"CDRUSEUCOM",adcon:"Commander's parent service; SOF-peculiar matters through USSOCOM"},
+  sup:["1st Battalion, 10th Special Forces Group (Airborne)","Naval Special Warfare Unit 2","352nd Special Operations Wing","SOCEUR Signal Detachment"],
+  verify:["Whether the SOCEUR commander also commands NATO's Allied Special Operations Forces Command is not confirmed. A 2024 NATO release on that change of command is cited for the current SOCEUR commander.","The JFSOCC designation is the usual role for a theater special operations command but is not published for USEUCOM."],
+  src:["wsoceur","sofcom","afdp30"]},
+
+ space:{abbr:"SPACEFOREUR-AF · COMSPACEFOR · JFSCC",title:"U.S. Space Forces Europe and Africa",rank:"O-7",kind:"key",role:"comp",holder:"space",adl:"CSO",
+  hat:"Two hats, one commander: COMSPACEFOR (Space Force service component) and JFSCC (joint space component for USEUCOM, Verify). Also the Space Force component to USAFRICOM",
+  sum:"Space Force service component. OPCON of Space Force forces; as JFSCC, TACON of all services' space forces made available.",
+  location:"Ramstein Air Base, Germany",
+  mission:"The Space Force component field command for USEUCOM and USAFRICOM, activated 8 Dec 2023 at Ramstein with about 30 people. It plans, coordinates, supports and conducts space operations for both combatant commands, across 51 countries in Europe and 53 in Africa, and works with NATO allies on space. It has since grown to more than three times its original size. Before it existed, USAFE-AFAFRICA handled space capabilities in theater.",
+  resp:["Integrate space capabilities into USEUCOM plans and operations","Request and coordinate space effects from USSPACECOM's CJFSCC","Space cooperation with NATO allies and partners","Represent the Space Force to CDRUSEUCOM"],
+  auth:["As COMSPACEFOR: OPCON of Space Force forces assigned, attached or presented to USEUCOM, as delegated by CDRUSEUCOM","As JFSCC (working assumption): TACON of space forces of all services made available to USEUCOM","ADCON of assigned Space Force personnel for the Secretary of the Air Force, reporting to the Chief of Space Operations; specified ADCON only of forces presented from other field commands","No authority over USSPACECOM's global forces: USSPACECOM's CJFSCC supports through a support relationship"],
+  rep:{opcon:"CDRUSEUCOM (and CDRUSAFRICOM for the Africa hat)",adcon:"Chief of Space Operations (for the Secretary of the Air Force)"},
+  sup:["SPACEFOR headquarters staff (S1–S9)","Space Force forces presented to USEUCOM (not published)","Other services' space forces made available (TACON as JFSCC)"],
+  staffGroups:[["Command section",["sfdcc","sfcos","sfsel"]],["Directorates",["s1","s2","s3","s4","s5","s6","s7","s8","s9"]]],
+  verify:["No public source names the SPACEFOREUR-AF commander as JFSCC for USEUCOM. This reference treats it as the most likely case, as directed by the project owner.","Sources spell the command two ways: SPACEFOREUR-AF and USSPACEFOR-EURAF."],
+  src:["sfact","sfrel","sfcoc","sfpage","s4svisit","sfdd1","spfi"]},
+
+ cyber:{abbr:"USCYBERCOM · JFHQ-C (AF)",title:"Cyber support to USEUCOM",rank:null,kind:"context",role:"comp",holder:"cyber",
+  sum:"Supporting command. Not a USEUCOM component; cyber forces stay under U.S. Cyber Command.",
+  location:"Outside the theater",
+  mission:"Joint Force Headquarters–Cyber elements are commanded by the heads of the service cyber components. Each is aligned to particular combatant commands to provide cyber planning, targeting, intelligence, synchronization and command and control. A July 2025 report names JFHQ-C (Air Force) as the one aligned to USEUCOM, along with USSPACECOM and USTRANSCOM. The same report describes FY26 legislation that may change these alignments.",
+  resp:["Plan and synchronize cyberspace operations in support of CDRUSEUCOM","Coordinate with the USEUCOM J3 and J6 cyber staff"],
+  auth:["CDRUSCYBERCOM keeps COCOM of cyber mission forces","Support relationship to CDRUSEUCOM; no USEUCOM commander holds OPCON or TACON of these forces in public sources"],
+  rep:{opcon:"CDRUSCYBERCOM",adcon:"Their own services"},
+  sup:["Cyber mission teams as allocated (not published)"],
+  verify:["The JFHQ-C alignment comes from a single July 2025 news report and may have changed under the FY26 NDAA."],
+  src:["jfhqc","afdp30"]},
+
+ s4s:{abbr:"S4S · CJFSCC",title:"USSPACECOM Combined Joint Force Space Component (global)",rank:"O-9",kind:"context",role:"force",su:"space",
+  sum:"Global space component at USSPACECOM. Supports USEUCOM; not under USEUCOM.",
+  location:"Vandenberg SFB, CA",
+  mission:"The commander of U.S. Space Forces–Space is USSPACECOM's Combined Joint Force Space Component Commander (CJFSCC) and directs global space operations. Theater space components such as SPACEFOREUR-AF request and integrate those effects. A May 2026 visit worked on the data links and command relationships between S4S and the Europe and Africa space component. See the companion page for its own chain of command.",
+  resp:["Global space operations that theater commanders rely on","Reachback for the theater JFSCC"],
+  rep:{opcon:"CDRUSSPACECOM",adcon:"Chief of Space Operations"},
+  sup:["See the USSPACECOM companion page"],src:["cjfscc","s4svisit","sfdd1"]},
+
+ /* ---- Land: under USAREUR-AF ---- */
+ vcorps:{abbr:"V CORPS",title:"V Corps",rank:"O-9",kind:"unit",role:"force",op:"army",ta:"jflcc",adl:"USAREUR-AF",
+  sum:"Forward corps headquarters for Army forces on NATO's eastern flank.",location:"Poznań, Poland",
+  mission:"Commands assigned and rotational Army formations in Europe, including the forces of Atlantic Resolve and the U.S. contribution to NATO's Enhanced Forward Presence in Poland.",
+  resp:["Command and control of land formations on the eastern flank","Integrate rotational heavy forces"],
+  rep:{opcon:"USAREUR-AF (TACON to the JFLCC when designated, normally the same commander)",adcon:"USAREUR-AF"},
+  sup:["Units listed below"],sq:["cr2","fab41","cab12","rotdiv"],src:["wvcorps","wusareur"]},
+ setaf:{abbr:"SETAF-AF",title:"Southern European Task Force, Africa",rank:"O-8",kind:"unit",role:"force",op:"army",ta:"jflcc",adl:"USAREUR-AF",
+  sum:"Army operations in Italy and Africa; parent of the 173rd Airborne Brigade.",location:"Vicenza, Italy",
+  mission:"Formed from the former U.S. Army Africa when it merged into USAREUR-AF. Responsible for Army operations and assets in Africa and Italy, and for the theater's airborne brigade.",
+  resp:["Army operations in Africa for USAFRICOM","Command of the 173rd Airborne Brigade"],
+  rep:{opcon:"USAREUR-AF (for Africa tasks, CDRUSAFRICOM through USAREUR-AF)",adcon:"USAREUR-AF"},
+  sup:["Units listed below"],sq:["ab173","mib207","csb414","sig509"],src:["wsetaf","armycon"]},
+ mdce:{abbr:"MDC-E",title:"Multi-Domain Command Europe",rank:"O-7",kind:"unit",role:"force",op:"army",ta:"jflcc",adl:"USAREUR-AF",
+  sum:"Theater fires and multi-domain effects; formerly the 56th Artillery Command.",location:"Mainz-Kastel, Germany",
+  mission:"The Army's first permanent multi-domain operations command, formed in July 2025 from the 56th Artillery Command and the 2nd Multi-Domain Task Force. It is the force field artillery headquarters for USAREUR-AF and combines long-range fires with space, cyberspace and other domain effects.",
+  resp:["Synchronize, integrate and control fires and effects for Army forces","Long-range fires and multi-domain effects"],
+  rep:{opcon:"USAREUR-AF",adcon:"USAREUR-AF"},
+  sup:["Units listed below"],sq:["mdtf2","bcd19"],src:["wmdce","mdce"]},
+ aamdc:{abbr:"10th AAMDC",title:"10th Army Air and Missile Defense Command",rank:"O-7",kind:"unit",role:"force",op:"army",ta:"jfacc",adl:"USAREUR-AF",
+  sum:"Theater Army air and missile defense, including the AN/TPY-2 radar in Turkey.",location:"Sembach, Germany",
+  mission:"Theater-level Army air and missile defense organization for USEUCOM. Its 52nd Air Defense Artillery Brigade fields Patriot and short-range air defense battalions, and the 11th Missile Defense Battery operates the AN/TPY-2 radar at Kürecik, Turkey.",
+  resp:["Air and missile defense of U.S. and allied forces","Operate forward-based missile defense radar"],
+  rep:{opcon:"USAREUR-AF",adcon:"USAREUR-AF"},
+  sup:["Units listed below"],sq:["ada52","mdb11"],
+  verify:["Joint doctrine normally places theater air and missile defense under the JFACC as area air defense commander. This page shows TACON to the JFACC on that basis; USEUCOM's actual arrangement is not published."],
+  src:["w10aamdc","afdp30"]},
+ tsc21:{abbr:"21st TSC",title:"21st Theater Sustainment Command",rank:"O-8",kind:"unit",role:"force",op:"army",ta:"jflcc",adl:"USAREUR-AF",
+  sum:"Theater sustainment: logistics, engineers, military police, medical, contracting.",location:"Kaiserslautern, Germany",
+  mission:"Plans and provides sustainment for U.S. forces in the theater.",
+  resp:["Theater logistics and sustainment","Area support groups in Romania, Poland and Kosovo"],
+  rep:{opcon:"USAREUR-AF",adcon:"USAREUR-AF"},
+  sup:["Units listed below"],sq:["msc7","eng7","sus16","mp18","med30","afsb405","csb409"],src:["w21tsc"]},
+ atc7:{abbr:"7th ATC",title:"7th Army Training Command",rank:"O-7",kind:"unit",role:"force",op:"army",adl:"USAREUR-AF",
+  sum:"Training for U.S., allied and partner forces, including Ukraine.",location:"Grafenwöhr, Germany",
+  mission:"Runs the Grafenwöhr and Hohenfels training areas and the Joint Multinational Readiness Center, and has taken on training of Ukraine's armed forces.",
+  resp:["Collective and individual training","Joint Multinational Training Group – Ukraine"],
+  rep:{opcon:"USAREUR-AF (training command; not normally made available to a JFLCC)",adcon:"USAREUR-AF"},
+  sup:["Units listed below"],sq:["jmrc","jmtgu","catc"],src:["w7atc"]},
+
+ /* ---- Maritime: under NAVEUR ---- */
+ c6f:{abbr:"C6F",title:"U.S. Sixth Fleet",rank:"O-9",kind:"unit",role:"force",op:"navy",ta:"jfmcc",adl:"NAVEUR-NAVAF",
+  sum:"Numbered fleet that directs Navy operations in Europe and Africa through task forces.",location:"Naval Support Activity Naples, Italy",
+  mission:"Conducts the full range of maritime operations and theater security cooperation in Europe and Africa. Its commander is also NAVEUR-NAVAF's deputy, and the two staffs work as one. Ships entering the Mediterranean change operational control (CHOP) to Sixth Fleet.",
+  resp:["Command of Navy task forces in theater","Maritime security, air and missile defense, and partner engagement"],
+  rep:{opcon:"NAVEUR-NAVAF (TACON to the JFMCC when designated, normally the same commander)",adcon:"NAVEUR-NAVAF"},
+  sup:["Task forces listed below"],sq:["tf61","tf62","tf63","tf64","tf65","tf66","tf67","tf68","tf69"],
+  verify:["Several task force descriptions on the cited page date from 2011 and may have changed."],src:["w6f","wnaveur"]},
+ cnreg:{abbr:"CNREURAFSWA",title:"Navy Region Europe, Africa, Southwest Asia",rank:"O-7",kind:"unit",role:"force",op:"navy",adl:"NAVEUR-NAVAF",
+  sum:"Shore installations and base support. Not made available to the JFMCC.",location:"Naples, Italy",
+  mission:"Runs Navy shore support activities across the theater for NAVEUR-NAVAF.",
+  resp:["Navy installations and base support"],
+  rep:{opcon:"NAVEUR-NAVAF",adcon:"NAVEUR-NAVAF / Commander, Navy Installations Command"},
+  sup:["Naval support activities in theater"],src:["wnaveur"]},
+
+ /* ---- Air: under USAFE ---- */
+ af3:{abbr:"3 AF",title:"Third Air Force",rank:"O-9",kind:"unit",role:"force",op:"af",ta:"jfacc",adl:"USAFE-AFAFRICA",
+  sum:"USAFE's sole numbered air force and warfighting headquarters.",location:"Ramstein Air Base, Germany",
+  mission:"Ensures the combat readiness of USAFE-AFAFRICA forces and is the warfighting headquarters through which the air component plans and directs operations. Its wings are based in the United Kingdom, Germany, Italy and Turkey.",
+  resp:["Readiness and employment of Air Force wings in theater","Warfighting headquarters for the air component"],
+  rep:{opcon:"USAFE-AFAFRICA",adcon:"USAFE-AFAFRICA"},
+  sup:["Wings listed below"],sq:["fw31","fw48","fw52","aw86","arw100","csw501","abw39","agow435"],
+  verify:["The wing list is from a secondary source dated 2022. The 406th Air Expeditionary Wing's Niger groups ended with the 2024 U.S. withdrawal from Niger and are left out."],src:["wusafe","af3"]},
+ aoc603:{abbr:"603 AOC",title:"603rd Air Operations Center",rank:"O-6",kind:"center",role:"force",op:"af",ta:"jfacc",adl:"USAFE-AFAFRICA",
+  sum:"Where the JFACC plans, tasks and controls air operations.",location:"Ramstein Air Base, Germany",
+  mission:"The Air Force air operations center for Europe and Africa. When the USAFE commander acts as JFACC, the 603rd AOC is the joint air operations center that produces the air tasking order for air forces of every service made available.",
+  resp:["Air tasking orders and air operations planning","Command and control of air operations"],
+  rep:{opcon:"USAFE-AFAFRICA / JFACC",adcon:"Third Air Force"},
+  sup:["Combat operations, strategy, plans, ISR and air mobility divisions"],src:["wusafe","af3"]},
+
+ /* ---- Marine Corps: under MARFOREUR/AF ---- */
+ mrfe:{abbr:"MRF-E",title:"Marine Rotational Force – Europe",rank:"O-6",kind:"unit",role:"force",op:"marines",ta:"jflcc",adl:"MARFOREUR/AF",
+  sum:"Rotational Marine infantry company and enablers in Norway.",location:"Norway",
+  mission:"An infantry company reinforced by enablers and a Marine Coordination Element. Its presence in Norway supports NATO and USEUCOM exercises and plans and builds interoperability with allies on the Northern Flank.",
+  resp:["Northern Flank presence and cold-weather training","Exercises with Norway and NATO allies"],
+  rep:{opcon:"MARFOREUR/AF (TACON to the JFLCC when made available for a land operation)",adcon:"Its parent Marine unit (rotates from the Fleet Marine Force)"},
+  sup:["Rotational Marine company and enablers"],
+  verify:["Commander grade is not published; O-6 is a placeholder."],src:["marfor","wmarfor"]},
+ mcppn:{abbr:"MCPP-N",title:"Marine Corps Prepositioning Program – Norway",rank:null,kind:"unit",role:"force",op:"marines",adl:"MARFOREUR/AF",
+  sum:"Equipment stored in caves in Norway for a Marine expeditionary brigade.",location:"Norway",
+  mission:"Prepositioned equipment for a Marine expeditionary brigade, drawn by forces flown in from the U.S. in a crisis or exercise.",
+  resp:["Store and maintain prepositioned equipment"],
+  rep:{opcon:"MARFOREUR/AF",adcon:"Marine Corps"},sup:["Prepositioned equipment sets"],src:["wmarfor"]},
+ meu:{abbr:"MEU / TF 62",title:"Marine forces afloat with Sixth Fleet",rank:"O-6",kind:"unit",role:"force",op:"marines",ta:"jfmcc",adl:"MARFOREUR/AF",
+  sum:"A Marine expeditionary unit when one deploys with an amphibious ready group.",location:"Afloat",
+  mission:"When an amphibious ready group and Marine expeditionary unit deploy to the Mediterranean, the MEU forms the landing force (Task Force 62) carried by Task Force 61's ships.",
+  resp:["Amphibious and crisis response operations","Evacuation of civilians"],
+  rep:{opcon:"Shown as MARFOREUR/AF, with TACON to the maritime commander while afloat (Verify)",adcon:"Its parent Marine Expeditionary Force"},
+  sup:["Marine expeditionary unit (about 1,900 Marines)"],
+  verify:["Public sources (2011 Navy descriptions) say Sixth Fleet's TF 61 and TF 62 exercise operational control of assigned units. Whether OPCON of an embarked MEU sits with Sixth Fleet or MARFOREUR/AF is not settled in current public sources."],
+  src:["w6f","wmarfor"]},
+
+ /* ---- Special operations: under SOCEUR ---- */
+ sfg10:{abbr:"1/10 SFG(A)",title:"1st Battalion, 10th Special Forces Group (Airborne)",rank:"O-5",kind:"unit",role:"force",op:"soc",ta:"jfsocc",adl:"USSOCOM / Army",
+  sum:"Forward-stationed Army Special Forces battalion.",location:"Panzer Kaserne, Böblingen, Germany",
+  mission:"Army Special Forces battalion stationed in Europe for SOCEUR missions and partner training.",
+  resp:["Special operations and partner force training"],
+  rep:{opcon:"SOCEUR",adcon:"10th Special Forces Group / U.S. Army Special Operations Command"},
+  sup:["Special Forces companies and detachments"],src:["wsoceur"]},
+ nswu2:{abbr:"NSWU-2",title:"Naval Special Warfare Unit 2",rank:"O-6",kind:"unit",role:"force",op:"soc",ta:"jfsocc",adl:"USSOCOM / Navy",
+  sum:"Naval special warfare command and control in Europe.",location:"Stuttgart, Germany",
+  mission:"Provides naval special warfare forces and command and control for SOCEUR.",
+  resp:["Naval special warfare in the USEUCOM area"],
+  rep:{opcon:"SOCEUR",adcon:"Naval Special Warfare Command"},
+  sup:["Naval special warfare elements"],
+  verify:["Commander grade is not published; O-6 is a placeholder."],src:["wsoceur"]},
+ sow352:{abbr:"352 SOW",title:"352nd Special Operations Wing",rank:"O-6",kind:"unit",role:"force",op:"soc",ta:"jfsocc",adl:"USSOCOM / Air Force",
+  sum:"Air Force special operations aviation (CV-22, MC-130J).",location:"RAF Mildenhall, United Kingdom",
+  mission:"Air Force Special Operations Command wing based in Europe. It is a tenant at RAF Mildenhall and not part of USAFE-AFAFRICA.",
+  resp:["Special operations airlift and infiltration","Air refueling of special operations helicopters"],
+  rep:{opcon:"SOCEUR",adcon:"Air Force Special Operations Command"},
+  sup:["7th Special Operations Squadron (CV-22B)","67th Special Operations Squadron (MC-130J)"],src:["wsoceur","wusafe"]},
+
+ /* ---- Space ---- */
+ sfp:{abbr:"SPACE FORCE FORCES",title:"Space Force forces presented to USEUCOM",rank:null,kind:"cdel",role:"force",op:"space",ta:"jfscc",adl:"Generating field command",
+  sum:"Not listed in public sources. OPCON COMSPACEFOR; TACON JFSCC (same commander).",
+  mission:"The Space Force presents forces to a combatant command through its component field command, either employed in place as combat squadrons or deployed as combat detachments. Which Space Force units are presented to USEUCOM is not published.",
+  resp:["Not specified publicly"],
+  rep:{opcon:"COMSPACEFOR (SPACEFOREUR-AF)",adcon:"Their generating field command (such as Combat Forces Command), with specified ADCON to SPACEFOREUR-AF as directed"},
+  sup:["—"],src:["sfdd1","spfi"]},
+ osp:{abbr:"OTHER SERVICES' SPACE",title:"Other services' space forces made available",rank:null,kind:"unit",role:"force",op:"svc",ta:"jfscc",
+  sum:"Army, Navy, Marine and Air Force space elements: OPCON their own service component, TACON JFSCC.",
+  mission:"This applies the rule used on the USSPACECOM companion page to the theater: a service's space forces stay under that service component's OPCON (for example MARFOREUR/AF for Marine space elements, USAREUR-AF for Army space teams), and the JFSCC holds TACON when they are made available for space operations. Specific units are not listed in public sources.",
+  resp:["Not specified publicly"],
+  rep:{opcon:"Their own service component (USAREUR-AF, NAVEUR-NAVAF, USAFE-AFAFRICA or MARFOREUR/AF)",adcon:"Their own service"},
+  sup:["—"],
+  verify:["Carried over from the USSPACECOM companion page's rule (Marine units OPCON to their service component, TACON to the space component). Not stated for USEUCOM in public sources."],
+  src:["sfdd1","afdp30"]},
+
+ /* ---- ADCON chain (context) ---- */
+ deps:{abbr:"MILDEPS",title:"Military departments",rank:"Civilian",kind:"context",role:"adm",adl:"Secretary of War",
+  sum:"Departments of the Army, the Navy and the Air Force: the source of every service's ADCON.",
+  mission:"Each military department organizes, trains, equips and administers its services' forces. The Department of the Navy covers the Navy and the Marine Corps; the Department of the Air Force covers the Air Force and the Space Force. CDRUSEUCOM is not in this chain.",
+  resp:["Service administration and support"],auth:["Source of service ADCON"],
+  rep:{opcon:"—",adcon:"Secretary of War"},sup:["Service chiefs and headquarters"],src:["afdp30","afdp301"]},
+ chiefs:{abbr:"SERVICE HQs",title:"Service chiefs and headquarters",rank:"O-10",kind:"context",role:"adm",adl:"Military departments",
+  sum:"HQDA, Chief of Naval Operations, Headquarters Marine Corps, Air Force Chief of Staff, Chief of Space Operations.",
+  mission:"Each service headquarters directs its service component to USEUCOM on administrative matters. None is in the operational chain.",
+  resp:["Organize, train, equip and present forces"],auth:["Service ADCON for the department secretary"],
+  rep:{opcon:"Not in the operational chain",adcon:"Their military department"},sup:["Service component commands"],src:["afdp30"]},
+ socom:{abbr:"USSOCOM",title:"U.S. Special Operations Command",rank:"O-10",kind:"context",role:"adm",adl:"Secretary of War",
+  sum:"Service-like responsibilities for SOF-peculiar matters; SOCEUR is one of its theater special operations commands.",
+  mission:"Provides service-like support for special operations forces. Ordinary ADCON of SOF personnel stays with their services through USSOCOM's service components.",
+  resp:["SOF-peculiar training, equipment and funding"],auth:["Service-like authority for SOF-peculiar matters"],
+  rep:{opcon:"Not in USEUCOM's operational chain for SOCEUR",adcon:"Secretary of War"},sup:["SOCEUR (organizationally)","USASOC, NSWC, AFSOC, MARSOC"],src:["wsoceur"]}
+};
+
+/* ================= Staff ================= */
+function st(abbr,title,short,rank,sum,resp,opc,adc,sup,src){return {abbr:abbr,title:title,short:short,rank:rank,kind:"staff",sum:sum,resp:resp,rep:{opcon:opc,adcon:adc},sup:sup||["Directorate staff"],src:src||[]};}
+var S = {
+ dcdr:st("DCDR","Deputy Commander, USEUCOM","Deputy Commander","O-9","Second in command of U.S. European Command.",["Acts for the commander when absent","Directs headquarters activities as delegated"],"CDRUSEUCOM","Parent service",["As delegated"]),
+ cos:st("CoS","Chief of Staff, USEUCOM","Chief of Staff","O-6","Runs the headquarters staff.",["Synchronize headquarters staff work"],"CDRUSEUCOM","Parent service",["Headquarters directorates"]),
+ csel:st("CSEL","Command Senior Enlisted Leader, USEUCOM","Command Senior Enlisted Leader","E-9","Senior enlisted advisor to the combatant commander.",["Advises the commander on enlisted joint force matters"],"CDRUSEUCOM","Parent service",["Enlisted leaders across the command (advisory)"]),
+ j1:st("J1","Manpower and Personnel","Manpower & Personnel","O-6","Joint manpower and personnel.",["Joint manpower and personnel management"],"Chief of Staff","Parent service"),
+ j2:st("J2","Intelligence","Intelligence","O-6","Intelligence for the command.",["Intelligence support to planning and operations"],"Chief of Staff","Parent service"),
+ j3:st("J3","Operations","Operations","O-6","Current operations, including cyberspace operations planning.",["Direct and monitor current operations","Cyberspace operations planning with the supporting JFHQ-C"],"Chief of Staff","Parent service"),
+ j4:st("J4","Logistics","Logistics","O-6","Logistics.",["Logistics planning; directive authority for logistics on the commander's behalf"],"Chief of Staff","Parent service"),
+ j5:st("J5","Plans and Policy","Plans & Policy","O-6","Plans and policy.",["Campaign and contingency planning"],"Chief of Staff","Parent service"),
+ j6:st("J6","C4 and Cyber","C4 & Cyber","O-6","Command, control, communications, computers and cyber.",["Communications and networks"],"Chief of Staff","Parent service"),
+ j7:st("J7","Exercises and Training","Exercises & Training","O-6","Joint training and exercises.",["Joint exercises and training"],"Chief of Staff","Parent service"),
+ j8:st("J8","Resources and Capabilities","Resources & Capabilities","O-6","Requirements and resources.",["Capability requirements and resourcing"],"Chief of Staff","Parent service"),
+ sfdcc:st("DCOMSPACEFOR","Deputy Commander, Space Forces","Deputy Commander","O-6","Approves actions, orders and plans as the commander authorizes.",["Approve actions, orders and plans when authorized"],"COMSPACEFOR","COMSPACEFOR",["As delegated"],["spfi"]),
+ sfcos:st("CoS","Chief of Staff","Chief of Staff","O-6","Coordinates and directs the SPACEFOR staff.",["Coordinate and direct staff activities"],"COMSPACEFOR","COMSPACEFOR",["S1–S9 directorates"],["spfi"]),
+ sfsel:st("CSEL","Command Senior Enlisted Leader","Command Senior Enlisted Leader","E-9","Principal advisor on the health, welfare, morale and progress of personnel and families.",["Advise the commander on personnel matters"],"COMSPACEFOR","COMSPACEFOR",["Enlisted leaders (advisory)"],["spfi"]),
+ s1:st("S1","Manpower, Personnel and Services","Personnel","O-6","Manpower and personnel matters.",["Principal staff assistant for manpower and personnel"],"Chief of Staff","COMSPACEFOR",null,["spfi"]),
+ s2:st("S2","Intelligence, Surveillance and Reconnaissance","ISR","O-6","Senior intelligence officer.",["Intelligence support to the component"],"Chief of Staff","COMSPACEFOR",null,["spfi"]),
+ s3:st("S3","Operations","Operations","O-6","Directs assigned and attached space forces through the component's operations center.",["Direct assigned and attached forces"],"Chief of Staff","COMSPACEFOR",null,["spfi"]),
+ s4:st("S4","Mission Support and Logistics","Mission Support & Logistics","O-6","Mission support and logistics.",["Mission support and logistics"],"Chief of Staff","COMSPACEFOR",null,["spfi"]),
+ s5:st("S5","Plans and Requirements","Plans & Requirements","O-6","Component planning in support of USEUCOM plans.",["Component planning in support of CCDR plans"],"Chief of Staff","COMSPACEFOR",null,["spfi"]),
+ s6:st("S6","Cyber, Electromagnetic Spectrum Operations and Warfighting Communications","Cyber, EMSO & Comms","O-6","Communications, cyber and spectrum operations.",["Communications, cyber and EMSO"],"Chief of Staff","COMSPACEFOR",null,["spfi"]),
+ s7:st("S7","Force Development","Force Development","O-6","Readiness through training and exercises.",["Training and exercises"],"Chief of Staff","COMSPACEFOR",null,["spfi"]),
+ s8:st("S8","Strategy and Programs","Strategy & Programs","O-6","Financial management and resource advice.",["Financial management and resourcing"],"Chief of Staff","COMSPACEFOR",null,["spfi"]),
+ s9:st("S9","Analysis and Assessments","Analysis & Assessments","O-6","Lessons learned and assessments.",["Lessons learned and assessments"],"Chief of Staff","COMSPACEFOR",null,["spfi"])
+};
+["j1","j2","j3","j4","j5","j6","j7","j8","cos"].forEach(function(k){S[k].verify=["USEUCOM directorate names and grades are not confirmed in the cited sources. O-6 is used where the grade is uncertain, following this project's convention; many USEUCOM directors are general or flag officers."];S[k].src=["crs"];});
+["sfdcc","s1","s2","s3","s4","s5","s6","s7","s8","s9"].forEach(function(k){S[k].verify=["SPFI 13-105 sets the standard SPACEFOR staff structure. SPACEFOREUR-AF's actual staff layout and grades are not published; O-6 is a placeholder."];});
+
+/* ================= Subordinate units ================= */
+function u(abbr,title,mission,loc,parent,opText,src,rank){return {abbr:abbr,title:title,rank:rank===undefined?"O-6":rank,kind:"unit",sum:mission,location:loc,mission:mission,resp:[mission],
+  rep:{opcon:opText,adcon:parent},sup:["Subordinate battalions, squadrons or elements"],src:src};}
+var LAND="USAREUR-AF; TACON to the JFLCC when made available";
+var Q = {
+ cr2:u("2CR","2nd Cavalry Regiment","Stryker cavalry regiment","Vilseck, Germany","V Corps",LAND,["wvcorps"]),
+ fab41:u("41 FAB","41st Field Artillery Brigade","Field artillery brigade","Grafenwöhr, Germany","V Corps",LAND,["wvcorps"]),
+ cab12:u("12 CAB","12th Combat Aviation Brigade","Army aviation brigade","Ansbach, Germany","V Corps",LAND,["wvcorps"]),
+ rotdiv:u("ROT DIV","Rotational heavy division (Atlantic Resolve)","Rotational division headquarters with two armored brigade combat teams, division artillery, an aviation brigade and a sustainment brigade","Bolesławiec, Poland","Home-station division (rotational)","V Corps under USAREUR-AF OPCON while attached; TACON to the JFLCC when made available",["wvcorps"],"O-8"),
+ ab173:u("173 ABN","173rd Airborne Brigade","The theater's airborne brigade combat team","Vicenza, Italy and Grafenwöhr, Germany","SETAF-AF",LAND,["wsetaf"]),
+ mib207:u("207 MIB","207th Military Intelligence Brigade (Theater)","Theater military intelligence","Vicenza, Italy","SETAF-AF","USAREUR-AF",["wsetaf"]),
+ csb414:u("414 CSB","414th Contracting Support Brigade","Contracting support","Vicenza, Italy","SETAF-AF","USAREUR-AF",["wsetaf"]),
+ sig509:u("509 SSB","509th Strategic Signal Battalion","Strategic communications","Vicenza, Italy","SETAF-AF","USAREUR-AF",["wsetaf"],"O-5"),
+ mdtf2:u("2 MDTF","2nd Multi-Domain Task Force","Long-range fires and multi-domain effects; includes the 2nd Multi-Domain Effects Battalion","Mainz-Kastel, Germany","Multi-Domain Command Europe",LAND,["wmdce","mdce"]),
+ bcd19:u("19 BCD","19th Battlefield Coordination Detachment","Army liaison to the air operations center, coordinating land and air operations","Ramstein Air Base, Germany","Multi-Domain Command Europe","USAREUR-AF; works inside the JFACC's 603rd AOC",["wmdce"]),
+ ada52:u("52 ADA","52nd Air Defense Artillery Brigade","Patriot (5-7 ADA) and Stryker short-range air defense (5-4 and 1-57 ADA) battalions","Sembach, Germany","10th AAMDC","USAREUR-AF; TACON to the JFACC (as area air defense commander) when made available",["w10aamdc"]),
+ mdb11:u("11 MDB","11th Missile Defense Battery","Operates the AN/TPY-2 missile defense radar at Kürecik Radar Station","Kürecik, Turkey","10th AAMDC","USAREUR-AF (radar data also supports global missile defense)",["w10aamdc"],"O-3"),
+ msc7:u("7 MSC","7th Mission Support Command (Army Reserve)","Army Reserve support command","Kaiserslautern, Germany","21st TSC","USAREUR-AF",["w21tsc"],"O-7"),
+ eng7:u("7 ENG BDE","7th Engineer Brigade","Engineer brigade","Ansbach, Germany","21st TSC",LAND,["w21tsc"]),
+ sus16:u("16 SB","16th Sustainment Brigade","Sustainment brigade","Baumholder, Germany","21st TSC","USAREUR-AF",["w21tsc"]),
+ mp18:u("18 MP","18th Military Police Brigade","Military police brigade","Grafenwöhr, Germany","21st TSC",LAND,["w21tsc"]),
+ med30:u("30 MED","30th Medical Brigade","Medical brigade","Sembach, Germany","21st TSC","USAREUR-AF",["w21tsc"]),
+ afsb405:u("405 AFSB","405th Army Field Support Brigade","Field support and prepositioned stocks","Kaiserslautern, Germany","21st TSC","USAREUR-AF",["w21tsc"]),
+ csb409:u("409 CSB","409th Contracting Support Brigade","Contracting support","Kaiserslautern, Germany","21st TSC","USAREUR-AF",["w21tsc"]),
+ jmrc:u("JMRC","Joint Multinational Readiness Center","Combat training center for U.S. and allied units","Hohenfels, Germany","7th ATC","USAREUR-AF (training)",["w7atc"]),
+ jmtgu:u("JMTG-U","Joint Multinational Training Group – Ukraine","Training of Ukraine's armed forces","Yavoriv, Ukraine (as listed)","7th ATC","USAREUR-AF (training)",["w7atc"]),
+ catc:u("CATC","Combined Arms Training Center","Individual and leader training","Vilseck, Germany","7th ATC","USAREUR-AF (training)",["w7atc"]),
+ tf61:u("TF 61","Task Force 61 (amphibious force)","Amphibious ready group ships when deployed","Afloat","Sixth Fleet","NAVEUR-NAVAF through Sixth Fleet",["w6f"]),
+ tf62:u("TF 62","Task Force 62 (landing force)","Marine expeditionary unit embarked on TF 61 ships","Afloat","Parent Marine Expeditionary Force","See “Marine forces afloat” (Verify)",["w6f"]),
+ tf63:u("TF 63","Task Force 63 (logistics)","Combat logistics, combined with Military Sealift Command's Sealift Logistics Command Europe","Naples, Italy","Sixth Fleet","NAVEUR-NAVAF through Sixth Fleet",["w6f"]),
+ tf64:u("TF 64","Task Force 64 (integrated air and missile defense)","Sixth Fleet's missile defense mission (since 2016)",null,"Sixth Fleet","NAVEUR-NAVAF through Sixth Fleet",["w6f"]),
+ tf65:u("TF 65","Task Force 65 / Destroyer Squadron 60","Operational and tactical control of forward-deployed surface combatants","Rota, Spain","Sixth Fleet","NAVEUR-NAVAF through Sixth Fleet",["w6f"]),
+ tf66:u("TF 66","Task Force 66 (uncrewed systems and innovation)","Re-established 2024 to integrate uncrewed systems across domains","Naples, Italy","Sixth Fleet","NAVEUR-NAVAF through Sixth Fleet",["w6f"]),
+ tf67:u("TF 67","Task Force 67 (maritime patrol aircraft)","P-8A, MQ-4C and helicopter squadrons for anti-submarine warfare and maritime awareness","NAS Sigonella, Italy","Sixth Fleet","NAVEUR-NAVAF through Sixth Fleet",["w6f"]),
+ tf68:u("TF 68","Task Force 68 (expeditionary forces)","Explosive ordnance disposal, naval construction, expeditionary security and Marine FAST platoons",null,"Sixth Fleet","NAVEUR-NAVAF through Sixth Fleet",["w6f"]),
+ tf69:u("TF 69","Task Force 69 (submarines)","Attack submarines operating in the theater",null,"Sixth Fleet","NAVEUR-NAVAF through Sixth Fleet",["w6f"]),
+ fw31:u("31 FW","31st Fighter Wing","F-16 fighter squadrons and combat rescue","Aviano Air Base, Italy","Third Air Force","USAFE-AFAFRICA; TACON to the JFACC",["wusafe"]),
+ fw48:u("48 FW","48th Fighter Wing","F-15E and F-35A fighter squadrons","RAF Lakenheath, United Kingdom","Third Air Force","USAFE-AFAFRICA; TACON to the JFACC",["wusafe"]),
+ fw52:u("52 FW","52nd Fighter Wing","F-16 fighter squadron and munitions support squadrons","Spangdahlem Air Base, Germany","Third Air Force","USAFE-AFAFRICA; TACON to the JFACC",["wusafe"]),
+ aw86:u("86 AW","86th Airlift Wing","Airlift and operational support airlift","Ramstein Air Base, Germany","Third Air Force","USAFE-AFAFRICA; TACON to the JFACC",["wusafe"]),
+ arw100:u("100 ARW","100th Air Refueling Wing","KC-135 air refueling","RAF Mildenhall, United Kingdom","Third Air Force","USAFE-AFAFRICA; TACON to the JFACC",["wusafe"]),
+ csw501:u("501 CSW","501st Combat Support Wing","Support to U.S. Air Force units at UK and Norway locations","RAF Alconbury, United Kingdom","Third Air Force","USAFE-AFAFRICA",["wusafe"]),
+ abw39:u("39 ABW","39th Air Base Wing","Base operations","Incirlik Air Base, Turkey","Third Air Force","USAFE-AFAFRICA",["wusafe"]),
+ agow435:u("435 AGOW","435th Air Ground Operations Wing","Air-ground integration and contingency response","Ramstein Air Base, Germany","Third Air Force","USAFE-AFAFRICA",["wusafe"])
+};
+var ALL = Object.assign({},N,S,Q);
+
+/* ================= Views ================= */
+var VIEWS = {
+ opcon:{
+  note:"<b>Operational chain.</b> Each force shows two authorities: <b>OPCON</b> from its service component (the service hat) and <b>TACON</b> from the functional component for its domain (the functional hat), which is usually the same commander. Pick a commander in the lens below to see both hats at once.",
+  tiers:[
+   {name:"Combatant command",groups:[{solo:true,nodes:["cdr"]}]},
+   {band:'<b class="c">COCOM</b> held by CDRUSEUCOM over all forces assigned or attached · <b class="o">OPCON</b> delegated to each service component · <b class="t">TACON</b> given to functional components for forces made available',cls:"cocom"},
+   {name:"Components (service hat · functional hat)",groups:[
+     {label:"Space Force service component and joint space component (one commander)",wide:true,nodes:["space"]},
+     {label:"Subordinate unified command, and supporting commands outside USEUCOM",nodes:["soc","cyber","s4s"]},
+     {label:"Other service components (each usually also a functional component)",span:true,nodes:["army","navy","af","marines"]}]},
+   {band:'<b class="o">OPCON</b> held by each service component · <b class="t">TACON</b> held by the functional component for that domain when forces are made available'},
+   {name:"Land: U.S. Army Europe and Africa",groups:[{label:"OPCON: COMUSAREUR-AF · TACON: JFLCC (same commander), except air defense (JFACC)",span:true,nodes:["vcorps","setaf","mdce","aamdc","tsc21","atc7"]}]},
+   {name:"Maritime: U.S. Naval Forces Europe and Africa",groups:[{label:"OPCON: COMUSNAVEUR, through Sixth Fleet · TACON: JFMCC (same commander)",span:true,nodes:["c6f","cnreg"]}]},
+   {name:"Air: U.S. Air Forces in Europe – Air Forces Africa",groups:[{label:"OPCON: COMUSAFE · TACON: JFACC (same commander)",span:true,nodes:["af3","aoc603"]}]},
+   {name:"Marine Corps: Marine Forces Europe and Africa",groups:[{label:"OPCON: COMMARFOREUR/AF · TACON: the functional component they are made available to",span:true,nodes:["mrfe","mcppn","meu"]}]},
+   {name:"Special operations: SOCEUR",groups:[{label:"OPCON: COMSOCEUR · TACON: JFSOCC (same commander)",span:true,nodes:["sfg10","nswu2","sow352"]}]},
+   {name:"Space",groups:[{label:"OPCON: COMSPACEFOR, or the force's own service component · TACON: JFSCC",span:true,note:"Specific space units presented to USEUCOM are not published.",nodes:["sfp","osp"]}]}
+  ]},
+ adcon:{
+  note:"<b>Administrative chain.</b> ADCON runs from each military department through its service headquarters to its service component at USEUCOM, and on to that component's units. Functional hats carry no ADCON: an Army unit under the JFACC's TACON still gets its administration from USAREUR-AF. CDRUSEUCOM is not in this chain.",
+  tiers:[
+   {name:"Departments",groups:[{solo:true,nodes:["deps"]}]},
+   {band:'<b class="a">ADCON</b> · service administration and support'},
+   {name:"Service headquarters",groups:[{solo:true,nodes:["chiefs","socom"]}]},
+   {band:'<b class="a">ADCON</b> · service headquarters to their component at USEUCOM'},
+   {name:"Service components (ADCON for their service only)",groups:[
+     {label:"Space Force (through the Chief of Space Operations)",wide:true,nodes:["space"]},
+     {label:"Army, Navy, Air Force, Marine Corps",nodes:["army","navy","af","marines"]},
+     {label:"SOF: SOF-peculiar through USSOCOM; other ADCON with each service",nodes:["soc"]}]},
+   {band:'<b class="a">ADCON</b> · component to its units · presented Space Force forces keep most ADCON with their generating field command'},
+   {name:"Units",groups:[
+     {label:"Army (USAREUR-AF)",span:true,nodes:["vcorps","setaf","mdce","aamdc","tsc21","atc7"]},
+     {label:"Navy (NAVEUR-NAVAF)",nodes:["c6f","cnreg"]},
+     {label:"Air Force (USAFE-AFAFRICA)",nodes:["af3","aoc603"]},
+     {label:"Marine Corps (MARFOREUR/AF)",nodes:["mrfe","mcppn","meu"]},
+     {label:"SOF (their services / USSOCOM)",nodes:["sfg10","nswu2","sow352"]},
+     {label:"Space Force",nodes:["sfp"]}]}
+  ]}
+};
+
+var RULES = {
+ opcon:[
+  ["cocom","COCOM: the combatant commander","<b>The Commander, U.S. European Command (CDRUSEUCOM)</b> holds combatant command (COCOM) over every force assigned or attached to USEUCOM. It cannot be delegated.","10 U.S.C. §164; AFDP 3-0.1"],
+  ["opcon","OPCON: the service hat","Each <b>service component commander normally holds operational control (OPCON)</b> of its own service's forces: USAREUR-AF for Army, NAVEUR-NAVAF for Navy, USAFE-AFAFRICA for Air Force, MARFOREUR/AF for Marine Corps, SPACEFOREUR-AF for Space Force. SOCEUR holds OPCON of special operations forces.","AFDP 3-0; SFDD-1"],
+  ["tacon","TACON: the functional hat","A <b>functional component commander normally gets tactical control (TACON)</b> of forces other components make available for its domain: JFLCC (land), JFMCC (maritime), JFACC (air), JFSOCC (special operations) and JFSCC (space). At USEUCOM each is usually the service component commander with the most forces in that domain, so one person holds the OPCON of their own service and the TACON of the domain.","AFDP 3-0; FM 3-31"]
+ ],
+ adcon:[
+  ["adcon","ADCON: the service chain","The ADCON chain runs through each <b>military department</b>, not the combatant command, though ADCON of assigned forces is exercised subject to CDRUSEUCOM's COCOM. A functional hat adds no ADCON over other services' forces.","AFDP 3-0.1; 10 U.S.C. §164"],
+  ["adcon","Specified ADCON (Space Force)","A Space Force component holds <b>specified ADCON</b> of combat formations presented from other field commands, as directed. The generating command keeps the rest.","SFDD-1; SPFI 13-105"],
+  ["opcon","SOF","SOCEUR has no service ADCON. <b>USSOCOM</b> handles SOF-peculiar matters; everything else stays with each special operator's own service.","Wikipedia, SOCEUR (secondary)"]
+ ]
+};
+
+/* Domain-by-domain table: [domain, service component, functional hat, what TACON covers, status, verify?] */
+var DOMAINS = [
+ ["Land","USAREUR-AF (Army)","JFLCC","Land forces other services make available, such as Marine ground forces ashore","Typical dual hat; not published",true],
+ ["Maritime","NAVEUR-NAVAF (Navy), operating through Sixth Fleet","JFMCC","Maritime forces other services make available","Typical dual hat; not published",true],
+ ["Air","USAFE-AFAFRICA (Air Force)","JFACC, through the 603rd AOC","Air capabilities other services make available, and normally theater air and missile defense","Typical dual hat; not published",true],
+ ["Special operations","SOCEUR (subordinate unified command, not a service component)","JFSOCC","Special operations forces from every service","Usual role of a theater special operations command",true],
+ ["Space","SPACEFOREUR-AF (Space Force)","JFSCC","Space forces from every service made available to USEUCOM; USSPACECOM's CJFSCC supports globally","Working assumption for this reference; not public",true],
+ ["Marine Corps","MARFOREUR/AF (Marine Corps)","None","Marine forces keep MARFOREUR/AF OPCON and go under the TACON of whichever functional component they are made available to","Service component only",false],
+ ["Cyber","None at USEUCOM","None (supporting command)","USCYBERCOM keeps COCOM; JFHQ-C (Air Force) supports USEUCOM","2025 report",true]
+];
+var EXAMPLES = [
+ ["A Marine company in Norway (MRF-E)",[["cc","COCOM","CDRUSEUCOM"],["op","OPCON","MARFOREUR/AF (service hat)"],["ta","TACON","JFLCC, when made available for a land operation"],["ad","ADCON","Marine Corps, through its parent unit"]]],
+ ["An Army Patriot battalion in Germany",[["cc","COCOM","CDRUSEUCOM"],["op","OPCON","USAREUR-AF (service hat)"],["ta","TACON","JFACC as area air defense commander, when made available (Verify)"],["ad","ADCON","USAREUR-AF, through the 10th AAMDC"]]],
+ ["A Space Force element presented to USEUCOM",[["cc","COCOM","CDRUSEUCOM"],["op","OPCON","COMSPACEFOR (SPACEFOREUR-AF service hat)"],["ta","TACON","JFSCC (same commander, joint hat)"],["ad","ADCON","Its generating field command, with specified ADCON to SPACEFOREUR-AF"]]]
+];
+
+var MATRIX = [
+ {k:"cdr",name:"CDRUSEUCOM",sub:"Combatant commander · also SACEUR",op:"Inherent in COCOM; delegated to each service component",ta:"Inherent; given to functional components for forces made available",ad:"None (a service function)",hats:"NATO: Supreme Allied Commander Europe"},
+ {k:"army",name:"COMUSAREUR-AF",sub:"Army component · usual JFLCC",op:"Army forces assigned or attached to USEUCOM",ta:"As JFLCC: land forces other services make available",ad:"Army forces, for the Department of the Army",hats:"USAFRICOM: Army component",v:true},
+ {k:"navy",name:"COMUSNAVEUR",sub:"Navy component · usual JFMCC",op:"Navy forces, through Sixth Fleet",ta:"As JFMCC: maritime forces other services make available",ad:"Navy forces, for the Department of the Navy",hats:"USAFRICOM: Navy component · NATO: Commander, Allied Joint Force Command Naples",v:true},
+ {k:"af",name:"COMUSAFE",sub:"Air Force component · usual JFACC",op:"Air Force forces, at the direction of CDRUSEUCOM",ta:"As JFACC: air capabilities other services make available",ad:"Air Force forces, for the Department of the Air Force",hats:"USAFRICOM: Air Force component · NATO: Commander, Allied Air Command",v:true},
+ {k:"marines",name:"COMMARFOREUR/AF",sub:"Marine Corps component",op:"Marine Corps forces assigned or attached",ta:"None (no functional hat)",ad:"Marine forces, for the Marine Corps",hats:"USAFRICOM: Marine component"},
+ {k:"soc",name:"COMSOCEUR",sub:"Subordinate unified command · usual JFSOCC",op:"Special operations forces in theater",ta:"As JFSOCC: SOF from every service",ad:"None (services and USSOCOM)",hats:"USEUCOM special operations director · NATO SOFCOM (Verify)",v:true},
+ {k:"space",name:"COMSPACEFOR / JFSCC",sub:"SPACEFOREUR-AF commander, two hats",op:"Space Force forces assigned, attached or presented to USEUCOM",ta:"As JFSCC: space forces of every service made available",ad:"Assigned Space Force personnel, for the Secretary of the Air Force; specified ADCON of presented forces",hats:"USAFRICOM: Space Force component",v:true},
+ {k:"cyber",name:"USCYBERCOM / JFHQ-C",sub:"Supporting command",op:"— (COCOM stays with CDRUSCYBERCOM)",ta:"—",ad:"—",hats:"Supports USEUCOM, USSPACECOM and USTRANSCOM (2025)",v:true}
+];
+
+var GLOSS = [
+ ["Combatant command (command authority) (COCOM)","Held only by a combatant commander, by law. Covers organizing and employing forces, assigning tasks, and directing operations, joint training and logistics.","“nontransferable command authority, which cannot be delegated, of a combatant commander” … “COCOM can never be delegated, but many of the authorities that come with it (OPCON, TACON) can be delegated to subordinate commanders.”","afdp301"],
+ ["Operational control (OPCON)","Organize and employ forces, assign tasks, set objectives. Delegated by the combatant commander, normally to service component commanders.","“OPCON is the authority to perform those functions of command over subordinate forces involving organizing and employing commands and forces, assigning tasks, designating objectives, and giving authoritative direction necessary to accomplish the mission.”","afdp301"],
+ ["Tactical control (TACON)","Detailed direction of forces on a mission. The usual authority a functional component holds over forces made available from other components. It does not include administration or logistics.","“TACON is the authority over forces that is limited to the detailed direction and control of movements or maneuvers within the operational area necessary to accomplish missions or tasks assigned.” … “TACON does not provide organizational authority or authoritative direction for administrative and logistic support.”","afdp301"],
+ ["Administrative control (ADCON)","The service chain: personnel, training, equipping, discipline and support. Not a warfighting authority.","“direction or exercise of authority over subordinate or other organizations with respect to administration and support.” … “ADCON is not a warfighting authority like that found in COCOM, OPCON, TACON, or support relationships.”","afdp301"],
+ ["Service component commander","The commander of one service's forces under a combatant command. Keeps service responsibilities whatever joint role the commander also holds.","“Regardless of the organizational and command arrangements within joint commands, Service component commanders are responsible for certain Service-specific functions and other matters affecting their forces”","fm331"],
+ ["Functional component commander","A commander the joint force commander sets up for a domain or function, with only the authority the establishing commander gives.","“Functional component commanders typically exercise TACON over military capability or forces made available for tasking.” … “the Service component commander with the majority of forces, and requisite command and control (C2) capabilities, is designated as the functional component commander.”","fm331"],
+ ["Service vs. functional (TACON over other components' forces)","Service component commanders normally keep OPCON of their own forces; a functional component commander normally gets TACON of forces other components make available.","“the JFC may delegate TACON to a subordinate commander for specific elements of another component's resources (this is the usual command authority exercised by functional component commanders over forces made available to them).”","afdp30"],
+ ["JFLCC, JFMCC, JFACC","Joint force land, maritime and air component commanders. Each directs a domain for the joint force commander; the JFACC plans and tasks through a joint air operations center (here the 603rd AOC).",null,"fm331"],
+ ["JFSOCC","Joint force special operations component commander. In a theater this is normally the theater special operations command, here SOCEUR.",null,"wsoceur"],
+ ["JFSCC (theater) and CJFSCC (global)","A theater JFSCC directs space forces made available to that combatant commander. USSPACECOM's Combined Joint Force Space Component Commander directs global space operations and supports the theaters.","“If designated as the Combined/Joint Force Space Component Commander, the COMSPACEFOR also executes tactical control and coordination over the attached space forces of other military Services, and coalition space forces.”","sfdd1"],
+ ["Commander, Space Forces (COMSPACEFOR)","The single Space Force commander of a Space Force service component to a combatant command.","“Normally, the combatant commander … will also delegate operational control of assigned, attached, or allocated space forces to the Service component commander with the preponderance of forces and the ability to C2 those forces.”","sfdd1"],
+ ["Subordinate unified command","A command a combatant commander sets up under it with joint forces for a region or function. SOCEUR is one.",null,"wsoceur"],
+ ["Support","A relationship a common superior sets when one commander should aid, protect, complement or sustain another. USCYBERCOM and USSPACECOM support USEUCOM this way.","“The JFC can establish support relationships among all functional and Service component commanders.”","afdp30"],
+ ["Assigned and attached forces","Assigned forces are placed under a combatant command for the long term; attached forces are placed there temporarily.","“Except as otherwise directed by the Secretary of Defense, all forces assigned to a unified combatant command shall be under the command of the commander of that command.”","usc162"],
+ ["Dual-hatting","One officer holding two commands or roles at once, such as service component commander and functional component commander, or a U.S. command and a NATO command.",null,"crs"]
+];
+
+/* ================= Render ================= */
+var chart=document.getElementById("chart"), panel=document.getElementById("panel"), lensEl=document.getElementById("lens");
+var view="opcon", lens=null, current=null;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function srcNum(k){return SRC_ORDER.indexOf(k)+1;}
+function rankChip(r){if(!r)return "";return r===V?'<span class="vbadge">Rank: verify</span>':'<span class="rank">'+esc(r)+'</span>';}
+var TAGLAB={cc:"COCOM",op:"OPCON",ta:"TACON",co:"COORDINATES",su:"SUPPORTS"};
+
+function authOver(d){
+  var out=[];
+  if(d.op||d.ta) out.push(["cc","COCOM","CDRUSEUCOM"]);
+  if(d.op) out.push(["op","OPCON",H[d.op].lab]);
+  if(d.ta) out.push(["ta","TACON",H[d.ta].lab]);
+  if(d.co) out.push(["co","Coordinated by",H[d.co].lab]);
+  if(d.su) out.push(["su","Supports",H[d.su].lab]);
+  return out;
+}
+function lensMatch(d){
+  if(!lens) return null;
+  if(lens==="cdr") return (d.op||d.ta)?["cc"]:null;
+  var m=[];
+  if(d.op===lens) m.push("op");
+  if(FUNC[lens]&&d.ta===FUNC[lens]) m.push("ta");
+  if(d.co===lens) m.push("co");
+  if(d.su===lens) m.push("su");
+  return m.length?m:null;
+}
+function heldBy(h){
+  var r={op:[],ta:[],co:[],cc:[],su:[]};
+  Object.keys(N).forEach(function(id){var d=N[id];if(d.role!=="force")return;
+    if(h==="cdr"&&(d.op||d.ta)) r.cc.push(id);
+    if(d.op===h) r.op.push(id);
+    if(FUNC[h]&&d.ta===FUNC[h]&&d.op!==h) r.ta.push(id);
+    if(d.co===h) r.co.push(id);
+    if(d.su===h) r.su.push(id);});
+  return r;
+}
+
+function nodeHTML(id){
+  var d=N[id], isForce=d.role==="force", isComp=d.role==="comp";
+  var cls="node"+(d.kind==="key"?" key":"")+(d.kind==="context"?" context":"")+(isForce?" force":"")+(isComp?" comp":"");
+  var flag="", dim=false;
+  if(view==="opcon"&&lens){
+    var m=isForce?lensMatch(d):null; dim=isForce&&!m;
+    if(isComp&&d.holder===lens) cls+=" self";
+    if(m){cls+=" hit"+((m.indexOf("op")<0&&m.indexOf("ta")>=0)?" ta-only":"")+((m.indexOf("op")<0&&m.indexOf("ta")<0&&m.indexOf("cc")<0)?" co-only":"");
+      flag='<span class="strip">'+m.map(function(x){return '<span class="tag '+x+'">'+TAGLAB[x]+'</span>';}).join('')+'</span>';}
+  }
+  var h='<button type="button" class="'+cls+'" data-id="'+id+'" id="n-'+id+'"><span class="node-top"><span class="abbr">'+esc(d.abbr)+'</span><span class="node-right">'+flag+rankChip(d.rank)+'</span></span>'+
+    '<span class="node-title">'+esc(d.title)+'</span>';
+  if(d.hat) h+='<span class="hatnote">'+esc(d.hat)+'</span>';
+  h+='<span class="node-sum">'+esc(d.sum)+'</span>';
+  if(view==="opcon"&&isForce){h+='<span class="strip">'+authOver(d).filter(function(a){return a[0]!=="cc";}).map(function(a){return '<span class="tag '+a[0]+'">'+a[1]+' · '+esc(a[2])+'</span>';}).join('')+(!d.op&&!d.ta&&!d.su?'<span class="tag na">Not assigned to USEUCOM</span>':'')+'</span>';}
+  if(view==="adcon"&&d.adl){h+='<span class="strip"><span class="tag ad">ADCON · '+esc(d.adl)+'</span></span>';}
+  var foot=[]; if(d.location) foot.push(esc(d.location)); if(d.verify&&d.verify.length) foot.push('<span class="vbadge">Verify</span>');
+  if(foot.length) h+='<span class="node-foot">'+foot.join(' · ')+'</span>';
+  h+='</button>';
+  var extra='';
+  if(d.staffGroups&&view==="opcon"){extra+='<div class="staffblock" aria-label="Staff">'+d.staffGroups.map(function(g){return '<div class="sb-row"><div class="sb-label">'+esc(g[0])+'</div><div class="sb-grid'+(g[0]==="Directorates"?' dir':'')+'">'+g[1].map(function(k){var x=S[k];return '<button type="button" class="sb-tile" data-id="'+k+'"><b>'+esc(x.abbr)+'</b><span>'+esc(x.short||x.title)+'</span></button>';}).join('')+'</div></div>';}).join('')+'</div>';}
+  if(d.sq&&d.sq.length){extra+='<div class="chips" aria-label="Subordinate units">'+d.sq.map(function(s){return '<button type="button" class="chip" data-id="'+s+'">'+esc(Q[s].abbr)+'</button>';}).join('')+'</div>';}
+  return extra?'<div class="nodewrap'+(dim?' dim':'')+'">'+h+extra+'</div>':h;
+}
+
+function renderRules(){
+  document.getElementById("rules").innerHTML=RULES[view].map(function(r){return '<div class="rule '+r[0]+'"><h3>'+esc(r[1])+'</h3><p>'+r[2]+'</p><span class="cite">'+esc(r[3])+'</span></div>';}).join('');
+}
+function chipList(ids){return ids.length?'<div class="chips">'+ids.map(function(k){return '<button type="button" class="chip" data-id="'+k+'">'+esc(N[k].abbr)+'</button>';}).join('')+'</div>':'<span style="color:var(--dim)">None</span>';}
+function renderLens(){
+  if(view!=="opcon"){lensEl.hidden=true;return;}
+  lensEl.hidden=false;
+  var h='<div class="lens-head"><span class="lens-label">Show the authority held by</span><div class="lens-btns" role="group" aria-label="Commander">'+
+    LENSES.map(function(k){return '<button type="button" data-lens="'+k+'" aria-pressed="'+(lens===k)+'">'+esc(LENS_BTN[k])+'</button>';}).join('')+
+    '<button type="button" class="clear" data-lens="" aria-pressed="'+(!lens)+'">Clear</button></div></div>';
+  if(lens){
+    var r=heldBy(lens);
+    h+='<div class="lens-sum"><p>'+LENS_TEXT[lens]+'</p>';
+    if(lens==="cdr") h+='<div class="lens-row"><span class="k cc">COCOM OF</span>'+chipList(r.cc)+'</div>';
+    else if(lens==="cyber") h+='<div class="lens-row"><span class="k su">SUPPORTS</span><span style="color:var(--muted);font-size:13px">CDRUSEUCOM (no OPCON or TACON held in theater)</span></div>';
+    else {
+      h+='<div class="lens-row"><span class="k op">OPCON OF</span>'+chipList(r.op)+'</div>';
+      if(FUNC[lens]) h+='<div class="lens-row"><span class="k ta">TACON OF</span><div><p style="margin:0 0 4px;color:var(--muted);font-size:13px">As '+H[FUNC[lens]].lab+': the forces above, plus these from other components when made available:</p>'+chipList(r.ta)+'</div></div>';
+      if(r.su.length) h+='<div class="lens-row"><span class="k su">SUPPORTED BY</span>'+chipList(r.su)+'</div>';
+    }
+    h+='</div>';
+  } else {
+    h+='<div class="lens-sum"><p style="color:var(--muted)">Pick a commander to highlight every unit under its COCOM, OPCON (service hat) or TACON (functional hat). Units outside its authority fade.</p></div>';
+  }
+  lensEl.innerHTML=h;
+}
+function render(){
+  var v=VIEWS[view];
+  document.body.classList.toggle("view-opcon",view==="opcon"); document.body.classList.toggle("view-adcon",view==="adcon");
+  chart.classList.toggle("lensing",view==="opcon"&&!!lens);
+  document.getElementById("viewnote").innerHTML=v.note;
+  renderRules(); renderLens();
+  chart.innerHTML=v.tiers.map(function(t){
+    if(t.band) return '<div class="band'+(t.cls?' '+t.cls:'')+'">'+t.band+'</div>';
+    return '<div class="tier"><span class="tier-name">'+esc(t.name)+'</span><div class="groups">'+
+      t.groups.map(function(g){return '<div class="group'+(g.solo?' solo':'')+(g.wide?' wide':'')+(g.span?' span':'')+'">'+(g.label?'<div class="group-label">'+esc(g.label)+'</div>':'')+(g.note?'<p class="group-note">'+esc(g.note)+'</p>':'')+
+        '<div class="group-nodes">'+g.nodes.map(nodeHTML).join('')+'</div></div>';}).join('')+'</div></div>';
+  }).join('');
+  ["opcon","adcon"].forEach(function(k){document.getElementById("btn-"+k).setAttribute("aria-pressed",String(k===view));});
+  if(current){mark(current);}
+}
+function mark(id){chart.querySelectorAll('[aria-current]').forEach(function(e){e.removeAttribute('aria-current');});
+  var el=chart.querySelector('.node[data-id="'+id+'"]'); if(el) el.setAttribute('aria-current','true');}
+
+function list(a){return '<ul>'+a.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';}
+function show(id){
+  var d=ALL[id]; if(!d) return; current=id; mark(id);
+  var kindLabel={comp:"Component command",unit:"Unit",key:"Command",context:"Context",center:"Operations center",cdel:"Presented Space Force forces",staff:"Staff"}[d.kind]||"";
+  var h='<button type="button" class="close" id="panel-close">Close</button>';
+  h+='<div class="eyebrow">'+esc(kindLabel)+'</div><h2>'+esc(d.title)+'</h2><p class="lead">'+esc(d.sum)+'</p>';
+  h+='<dl class="facts"><dt>Abbreviation</dt><dd>'+esc(d.abbr)+'</dd>';
+  if(d.rank) h+='<dt>Typical grade</dt><dd>'+(d.rank===V?'<span class="vbadge">Verify</span>':esc(d.rank))+'</dd>';
+  if(d.location) h+='<dt>Location</dt><dd>'+esc(d.location)+'</dd>';
+  h+='<dt>Commander</dt><dd>[Name placeholder]</dd>';
+  h+='</dl>';
+  if(d.hat) h+='<p class="hatnote" style="margin-top:8px">'+esc(d.hat)+'</p>';
+  if(d.mission) h+='<h4>Mission</h4><p>'+esc(d.mission)+'</p>';
+  if(d.holder&&d.holder!=="cyber"){
+    var r=heldBy(d.holder);
+    h+='<h4>Authority this commander holds</h4><div class="authbox">';
+    if(d.holder==="cdr") h+='<div class="cc"><b>COCOM</b>All forces assigned or attached to USEUCOM</div>';
+    else {
+      h+='<div class="op"><b>OPCON OF (SERVICE HAT)</b>'+(r.op.length?r.op.map(function(k){return esc(N[k].title);}).join('; '):'None in public sources')+'</div>';
+      if(FUNC[d.holder]) h+='<div class="ta"><b>TACON OF (AS '+H[FUNC[d.holder]].lab+')</b>Its own forces above, plus forces other components make available'+(r.ta.length?', such as: '+r.ta.map(function(k){return esc(N[k].title);}).join('; '):'')+'</div>';
+      else h+='<div class="ta"><b>TACON</b>No functional hat. Its forces go under the TACON of the functional component they are made available to.</div>';
+      if(r.su.length) h+='<div class="su"><b>SUPPORTED BY</b>'+r.su.map(function(k){return esc(N[k].title);}).join('; ')+'</div>';
+    }
+    h+='</div><p style="margin-top:8px"><button type="button" class="linkbtn" data-lens="'+d.holder+'">Highlight these in the chart</button></p>';
+  }
+  if(d.auth) h+='<h4>Command authorities</h4>'+list(d.auth);
+  if(d.role==="force"){
+    h+='<h4>Authority held over this unit</h4><div class="authbox">'+authOver(d).map(function(a){return '<div class="'+a[0]+'"><b>'+a[1].toUpperCase()+'</b>'+esc(a[2])+'</div>';}).join('')+'</div>';
+  }
+  h+='<h4>Reports to</h4><div class="authbox"><div class="op"><b>OPERATIONAL</b>'+esc(d.rep.opcon)+'</div><div class="ad"><b>ADMINISTRATIVE</b>'+esc(d.rep.adcon)+'</div></div>';
+  h+='<h4>Key responsibilities</h4>'+list(d.resp||[]);
+  h+='<h4>Supervises</h4>'+list(d.sup||[]);
+  if(d.staffGroups){h+='<h4>Staff</h4>'+d.staffGroups.map(function(g){return '<p class="src" style="margin:6px 0 4px">'+esc(g[0])+'</p><div class="chips">'+g[1].map(function(k){return '<button type="button" class="chip staff" data-id="'+k+'">'+esc(S[k].abbr)+' · '+esc(S[k].title)+'</button>';}).join('')+'</div>';}).join('');}
+  if(d.sq){h+='<h4>Subordinate units</h4><div class="chips">'+d.sq.map(function(s){return '<button type="button" class="chip" data-id="'+s+'">'+esc(Q[s].abbr)+' · '+esc(Q[s].title)+'</button>';}).join('')+'</div>';}
+  if(d.verify&&d.verify.length) h+='<div class="verify"><h4>Not confirmed in public sources</h4>'+list(d.verify)+'</div>';
+  if(d.src&&d.src.length) h+='<h4>Sources</h4><div class="src">'+d.src.map(function(s){var o=SOURCES[s];return '['+srcNum(s)+'] '+(o.u?'<a href="'+o.u+'" target="_blank" rel="noopener">'+esc(o.t)+'</a>':esc(o.t));}).join('<br>')+'</div>';
+  panel.innerHTML=h; panel.classList.remove("idle"); panel.scrollTop=0;
+  var c=document.getElementById("panel-close"); if(c) c.addEventListener("click",function(){panel.classList.add("idle");});
+}
+function setLens(k,scroll){lens=k||null; if(view!=="opcon") view="opcon"; render(); if(scroll){var t=document.getElementById("lens"); if(t&&t.scrollIntoView) t.scrollIntoView({behavior:"smooth",block:"start"});}}
+
+document.addEventListener("click",function(e){
+  var l=e.target.closest("[data-lens]"); if(l){setLens(l.getAttribute("data-lens"),l.closest("#matrix")||l.closest("#panel")||l.closest("#domains")); return;}
+  var t=e.target.closest("[data-id]");
+  if(t){var id=t.getAttribute("data-id"); var d=N[id];
+    if(d&&d.holder&&view==="opcon"&&t.classList.contains("node")){lens=d.holder; render();}
+    show(id); return;}
+  var b=e.target.closest(".toggle button"); if(b){view=b.getAttribute("data-view"); try{localStorage.setItem("eucom-c2-view",view);}catch(err){} render();}
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape") panel.classList.add("idle");});
+
+var DOM_LENS={"Land":"army","Maritime":"navy","Air":"af","Special operations":"soc","Space":"space","Marine Corps":"marines","Cyber":"cyber"};
+function vb(on){return on?' <span class="vbadge">Verify</span>':'';}
+document.getElementById("domains").innerHTML='<thead><tr><th>Domain</th><th class="op">Service component (service hat: OPCON + ADCON)</th><th class="ta">Functional hat (TACON)</th><th class="ta">What the functional hat directs</th><th>Status</th></tr></thead><tbody>'+
+  DOMAINS.map(function(r){return '<tr><th scope="row"><button type="button" data-lens="'+DOM_LENS[r[0]]+'">'+esc(r[0])+'</button></th><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td>'+esc(r[3])+'</td><td>'+esc(r[4])+vb(r[5])+'</td></tr>';}).join('')+'</tbody>';
+document.getElementById("examples").innerHTML=EXAMPLES.map(function(x){return '<div class="ex"><h4>Example: '+esc(x[0])+'</h4><div class="authbox">'+x[1].map(function(a){return '<div class="'+a[0]+'"><b>'+a[1]+'</b>'+esc(a[2])+'</div>';}).join('')+'</div></div>';}).join('');
+document.getElementById("matrix").innerHTML='<thead><tr><th>Commander</th><th class="op">Service hat: OPCON over</th><th class="ta">Functional hat: TACON over</th><th class="ad">ADCON over</th><th>Other hats (USAFRICOM · NATO)</th></tr></thead><tbody>'+
+  MATRIX.map(function(r){function c(x,v){return '<td'+(x==="—"?' class="none"':'')+'>'+esc(x)+(v?vb(true):'')+'</td>';}
+    return '<tr><th scope="row"><button type="button" data-lens="'+r.k+'">'+esc(r.name)+'</button><small>'+esc(r.sub)+'</small></th>'+c(r.op)+c(r.ta,r.v)+c(r.ad)+c(r.hats)+'</tr>';}).join('')+'</tbody>';
+document.getElementById("gloss").innerHTML=GLOSS.map(function(g){var o=SOURCES[g[3]];
+  return '<div><dt>'+esc(g[0])+'</dt><dd>'+esc(g[1])+(g[2]?'<blockquote>'+esc(g[2])+'<cite>['+srcNum(g[3])+'] '+esc(o.t)+'</cite></blockquote>':'<cite style="display:block;font:500 11px/1.3 var(--font-mono);color:var(--dim);margin-top:3px">Summary · ['+srcNum(g[3])+'] '+esc(o.t)+'</cite>')+'</dd></div>';}).join('');
+document.getElementById("sources").innerHTML=SRC_ORDER.map(function(k){var o=SOURCES[k];
+  return '<li><b>'+esc(o.t)+'</b>'+(o.u?'<br><a href="'+o.u+'" target="_blank" rel="noopener">'+esc(o.u)+'</a>':'')+'</li>';}).join('');
+
+try{var saved=localStorage.getItem("eucom-c2-view"); if(saved==="adcon"||saved==="opcon") view=saved;}catch(err){}
+lens="space";
+render();
+if(window.matchMedia("(min-width:981px)").matches) show("space");
+})();
+</script>
+</body>
+</html>
