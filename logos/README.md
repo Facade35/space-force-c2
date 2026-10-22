@@ -7,11 +7,19 @@ original file downloaded from an official public source (.mil sites, DAF Histori
 Division, DVIDS). Nothing is redrawn, traced, cropped into a new design, or generated.
 
 ## Status
-The files are not downloaded yet: the cloud environment's network policy blocks .mil hosts.
-`manifest.csv` lists every unit the page uses, the target file name, and the official page
-where its emblem was found (or a flag where none was found).
+Sources: carson approved Wikipedia and Wikimedia Commons. Each row records the Commons file page,
+the original (.mil, DVIDS or official account) source that Commons cites, and the official page.
+The .mil sites refuse cloud traffic (Akamai "Access Denied"), so files come from Commons for now.
 
-## Layout (planned)
+- 53 emblems picked on Commons. Only `ussf-emblem.png` is downloaded so far: Wikimedia rate-limits
+  the cloud network. Run `python logos/fetch_logos.py` from a normal connection to fetch the rest.
+- Not used: user-drawn or traced copies (Commons "own work" files and unofficial SVG versions).
+- No usable official file found: CFSCC (original is on media.defense.gov), Space Delta 9,
+  2nd Sustainment Sq, 15th C2 Sq, 15th ISR Sq. Ops centers are left as text labels.
+- Rows marked "source unverified" cite only imgur or Facebook on Commons; check them against a
+  .mil copy before use.
+
+## Layout
 - `logos/` (this folder) command, component and delta emblems (`delta-05.png` etc.)
 - `logos/squadrons/` squadron emblems
 - `manifest.csv` source URL, status and notes for each file
